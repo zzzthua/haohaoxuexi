@@ -107,11 +107,11 @@ textarea.ef{min-height:80px}
   <button class="btn bn" onclick="nextCard()">下一题 &#9654;</button>
 </div>
 <div class="toast" id="toast"></div>
-<script src="data.js"></script>
+<script src="data.js?v=3"></script>
 <script>
 var allData,chapters,filtered,idx=0,mode=0,editing=false,revealed=false;
 var dictState={};
-var DATA_VERSION='v2';
+var DATA_VERSION='v3';
 function init(){
   try{
     var ver=localStorage.getItem('hxx_ver');
