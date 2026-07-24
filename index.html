@@ -8,24 +8,24 @@
 <title>好好学习 - 知识卡片</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#f0f2f5;--card:#fff;--text:#1a1a2e;--text2:#666;--border:#e0e0e0;--star5:#e53935;--star4:#1e88e5;--star3:#757575;--accent:#4caf50;--warn:#ff9800;--err:#e53935;--ok:#4caf50;--shadow:0 4px 20px rgba(0,0,0,.08);--r:16px}
+:root{--bg:#f7f8fa;--card:#fff;--text:#1a1a2e;--text2:#666;--border:#e0e0e0;--star5:#e53935;--star4:#1e88e5;--star3:#757575;--accent:#4caf50;--warn:#ff9800;--err:#e53935;--ok:#4caf50;--shadow:0 4px 20px rgba(0,0,0,.08);--r:16px;--rs:8px;--rm:12px;--rl:16px;--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);--mn-bg:#fff8e1;--mn-border:#ffc107;--mn-text:#ff8f00;--mn-label:#ff8f00}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.header{flex-shrink:0;background:var(--card);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.05);z-index:10;gap:6px}
+.header{flex-shrink:0;background:var(--card);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-sm);z-index:10;gap:6px}
 .header-left{display:flex;align-items:center;gap:6px}
 .header-title{font-size:17px;font-weight:700}
-.header-right{display:flex;gap:5px;align-items:center}
-.hselect{font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:#f8f9fa;color:var(--text);outline:none;max-width:110px}
-.hbtn{font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer;font-weight:600;white-space:nowrap}
+.header-right{display:flex;gap:8px;align-items:center}
+.hselect{font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:var(--rs);background:#f8f9fa;color:var(--text);outline:none;max-width:110px}
+.hbtn{font-size:12px;padding:8px 12px;border-radius:var(--rs);border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer;font-weight:600;white-space:nowrap}
 .hbtn:active{background:#f0f0f0}
 .mode-tabs{flex-shrink:0;display:flex;background:var(--card);border-bottom:1px solid var(--border)}
 .mode-tab{flex:1;text-align:center;padding:8px 0;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
 .mode-tab:active{background:#f5f5f5}
-.mode-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.mode-tab.active{color:var(--accent);border-bottom:3px solid var(--accent);background:rgba(76,175,80,.06)}
 .progress-bar{flex-shrink:0;height:3px;background:#e0e0e0}
 .progress-fill{height:100%;background:var(--accent);transition:width .3s}
 .progress-text{flex-shrink:0;text-align:center;font-size:11px;color:var(--text2);padding:3px 0;background:var(--card)}
 .card-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:10px 14px;position:relative;touch-action:pan-y;overflow:hidden}
-.card{width:100%;max-width:420px;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;transition:transform .2s;overflow-y:auto;max-height:calc(100vh - 200px)}
+.card{width:100%;max-width:420px;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-md);padding:20px;display:flex;flex-direction:column;transition:transform .2s;overflow-y:auto;max-height:calc(100vh - 200px)}
 .card.sw-l{transform:translateX(-40px);opacity:.7}
 .card.sw-r{transform:translateX(40px);opacity:.7}
 .tags{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
@@ -34,15 +34,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica N
 .t5{background:var(--star5)}.t4{background:var(--star4)}.t3{background:var(--star3)}
 .tch{background:#f0f0f0;color:var(--text2);cursor:default}
 .tmode{background:#e8f5e9;color:#2e7d32;cursor:default}
-.fld{margin-bottom:12px}
+.fld{margin-bottom:14px}
 .fld-label{font-size:11px;color:var(--text2);font-weight:700;margin-bottom:3px;letter-spacing:.5px}
 .fld-val{font-size:15px;line-height:1.7;word-break:break-all;white-space:pre-wrap}
-.fld-val.big{font-size:19px;font-weight:700;line-height:1.5;margin-bottom:14px}
-.mnbox{padding:10px;background:#fff8e1;border-radius:10px;border-left:4px solid #ffc107;margin-top:3px}
-.mn-label{font-size:11px;color:#ff8f00;font-weight:700;margin-bottom:3px}
-.mn-text{font-size:14px;color:#5d4037;font-weight:600}
-.sep{border:none;border-top:1px solid var(--border);margin:12px 0}
-.ef{width:100%;font-size:14px;padding:9px 11px;border:1px solid var(--border);border-radius:10px;background:#fafafa;color:var(--text);line-height:1.6;resize:vertical;outline:none;font-family:inherit;transition:border-color .2s}
+.fld-val.big{font-size:19px;font-weight:700;line-height:1.5;margin-bottom:2px}
+.mn-inline{display:flex;align-items:center;justify-content:space-between;margin-top:2px;padding:6px 12px;background:var(--mn-bg);border-radius:6px;border-left:3px solid var(--mn-border);cursor:pointer;min-height:32px}
+.mn-inline-label{font-size:11px;color:var(--mn-label);font-weight:700;flex-shrink:0}
+.mn-inline-text{font-size:12px;color:#5d4037;font-weight:600;margin-left:6px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mn-inline-eye{font-size:14px;color:var(--mn-label);flex-shrink:0;margin-left:6px}
+.sep{border:none;border-top:1px solid var(--border);margin:10px 0}
+.ef{width:100%;font-size:14px;padding:9px 11px;border:1px solid var(--border);border-radius:var(--rm);background:#fafafa;color:var(--text);line-height:1.6;resize:vertical;outline:none;font-family:inherit;transition:border-color .2s}
 .ef:focus{border-color:var(--accent);background:#fff}
 .ef.big{font-size:17px;font-weight:700}
 .ef.mn{background:#fffbe6;border-color:#ffc107}
@@ -52,40 +53,59 @@ textarea.ef{min-height:80px}
 .star-opt:active{transform:scale(.96)}
 .star-opt.on{border-color:var(--text);box-shadow:0 0 0 2px rgba(0,0,0,.1)}
 .so5{background:var(--star5);color:#fff}.so4{background:var(--star4);color:#fff}.so3{background:var(--star3);color:#fff}
-.dict-area{width:100%;min-height:220px;padding:12px 14px;border:2px dashed var(--border);border-radius:12px;font-size:17px;line-height:1.8;resize:vertical;outline:none;font-family:inherit;color:var(--text);background:#fafcff;transition:border-color .3s}
+.dict-area{width:100%;min-height:200px;padding:10px 12px;border:2px dashed var(--border);border-radius:var(--rm);font-size:17px;line-height:1.8;resize:vertical;outline:none;font-family:inherit;color:var(--text);background:#fafcff;transition:border-color .3s}
 .dict-area:focus{border-color:var(--accent);border-style:solid;background:#fff}
 .dict-area:disabled{background:#f9f9f9;color:var(--text2)}
-.check-result{margin-top:12px;border-radius:12px;overflow:hidden}
-.check-header{padding:10px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.check-result{margin-top:6px;border-radius:var(--rm);overflow:hidden}
+.check-header{padding:6px 10px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
 .check-header.perfect{background:#e8f5e9;color:#2e7d32}
 .check-header.partial{background:#fff3e0;color:#e65100}
 .check-header.miss{background:#ffebee;color:#c62828}
 .check-body{padding:12px 14px;background:#fafafa;font-size:14px;line-height:1.8;border-top:1px solid var(--border)}
 .correct-line{color:var(--ok)}.missed-line{color:var(--err);font-weight:600}.extra-line{color:var(--warn);font-style:italic;text-decoration:line-through}
-.abtn{width:100%;padding:11px;border:none;border-radius:12px;background:#f5f5f5;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s}
+.abtn{width:100%;padding:8px;border:none;border-radius:var(--rm);background:#f5f5f5;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s}
 .abtn:active{background:#e8e8e8;transform:scale(.98)}
 .abtn.rev{background:var(--accent);color:#fff}
-.abtn.check{background:#fff3e0;color:#e65100}
-.abtn.check:active{background:#ffe0b2}
-.acontent{margin-top:12px;font-size:15px;line-height:1.8;white-space:pre-wrap;word-break:break-all;animation:fadeIn .3s}
-.ans-list{margin-top:12px;animation:fadeIn .3s}
-.ans-item{font-size:17px;line-height:1.9;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start;word-break:break-all}
+.abtn.check{background:#ff9800;color:#fff}
+.abtn.check:active{background:#e68900}
+.acontent{margin-top:6px;font-size:15px;line-height:1.8;white-space:pre-wrap;word-break:break-all;animation:fadeIn .3s}
+.ans-list{margin-top:6px;animation:fadeIn .3s}
+.ans-item{font-size:17px;line-height:1.9;margin-bottom:4px;display:flex;gap:8px;align-items:flex-start;word-break:break-all}
 .ans-num{color:var(--accent);font-weight:700;flex-shrink:0;font-size:17px}
-.mn-eye-bar{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:8px 12px;background:#fff8e1;border-radius:10px;border-left:4px solid #ffc107;cursor:pointer}
-.mn-eye-label{font-size:12px;color:#ff8f00;font-weight:700}
-.mn-eye{font-size:18px;color:#ff8f00}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.bottom{flex-shrink:0;background:var(--card);padding:10px 14px 22px;display:flex;align-items:center;justify-content:space-between;gap:6px;box-shadow:0 -1px 4px rgba(0,0,0,.05)}
-.btn{flex:1;padding:11px 4px;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;transition:all .15s;white-space:nowrap}
+.bottom{flex-shrink:0;background:var(--card);padding:10px 14px 22px;display:flex;align-items:center;justify-content:space-between;gap:6px;box-shadow:var(--shadow-sm)}
+.btn{flex:1;padding:12px 4px;min-height:48px;border:none;border-radius:var(--rm);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;transition:all .15s;white-space:nowrap}
 .btn:active{transform:scale(.96)}
 .bp{background:#f5f5f5;color:var(--text)}.bn{background:var(--text);color:#fff}
 .br{background:#fff0f0;color:var(--star5);border:1px solid #ffcdd2}
 .be{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9}
 .be.ing{background:#fff3e0;color:#e65100;border-color:#ffcc02}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:8px 18px;border-radius:18px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:8px 18px;border-radius:18px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 .sw-hint{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);font-size:11px;color:#bbb;pointer-events:none;opacity:.5}
 @media(min-width:600px){.card{max-height:calc(100vh - 180px)}.fld-val.big{font-size:21px}}
+/* stats */
+.st-card{background:var(--card);border-radius:var(--rl);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.st-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.st-row{display:flex;justify-content:space-between;gap:10px}
+.st-cell{flex:1;text-align:center;padding:10px 6px;background:#f8f9fa;border-radius:8px}
+.st-cell-val{font-size:24px;font-weight:700;color:var(--accent)}
+.st-cell-lab{font-size:11px;color:var(--text2);margin-top:2px}
+.st-bar-wrap{height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;margin:4px 0}
+.st-bar-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+.st-bar-fill.low{background:var(--err)}
+.st-bar-fill.mid{background:var(--warn)}
+.st-ch-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.st-ch-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-ch-pct{width:36px;text-align:right;font-weight:700}
+.st-week-wrap{display:flex;align-items:flex-end;gap:4px;height:90px;padding:6px 0}
+.st-week-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.st-week-bar{width:100%;border-radius:3px 3px 0 0;background:var(--accent);min-height:2px;transition:height .4s}
+.st-week-bar.low{background:var(--err)}
+.st-week-bar.mid{background:var(--warn)}
+.st-week-lab{font-size:11px;color:var(--text2);white-space:nowrap}
+.st-empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.st-empty-icon{font-size:40px;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -93,12 +113,15 @@ textarea.ef{min-height:80px}
   <div class="header-left"><div class="header-title">好好学习</div></div>
   <div class="header-right">
     <select class="hselect" id="chSel"><option value="all">全部章节</option></select>
+    <button class="hbtn" onclick="toggleAdd()" style="color:var(--accent);font-size:16px;line-height:1">+</button>
+    <button class="hbtn" onclick="exportDataJs()">同步</button>
     <button class="hbtn" onclick="exportData()">导出</button>
   </div>
 </div>
 <div class="mode-tabs">
   <div class="mode-tab active" id="tab0" onclick="switchMode(0)">背诵模式</div>
   <div class="mode-tab" id="tab1" onclick="switchMode(1)">默写模式</div>
+  <div class="mode-tab" id="tab2" onclick="switchMode(2)">统计分析</div>
 </div>
 <div class="progress-bar"><div class="progress-fill" id="pBar"></div></div>
 <div class="progress-text" id="pText">0 / 0</div>
@@ -113,18 +136,35 @@ textarea.ef{min-height:80px}
   <button class="btn bn" onclick="nextCard()">下一题 &#9654;</button>
 </div>
 <div class="toast" id="toast"></div>
-<script src="data.js?v=4"></script>
 <script>
-var allData,chapters,filtered,idx=0,mode=0,editing=false,revealed=false;
+var DATA_VERSION='v11';
+(function(){
+  var s=document.createElement('script');
+  s.src='data.js?v='+DATA_VERSION;
+  s.onload=function(){
+    if(typeof INIT_DATA!=='undefined'&&INIT_DATA&&INIT_DATA.knowledge){
+      init();
+    }else{
+      document.getElementById('card').innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#9888;</div><div>数据格式错误</div></div>';
+    }
+  };
+  s.onerror=function(){
+    document.getElementById('card').innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128260;</div><div>数据加载失败，请检查网络连接<br>或尝试刷新页面</div><button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;cursor:pointer">刷新页面</button></div>';
+    document.getElementById('swH').style.display='none';
+  };
+  document.head.appendChild(s);
+})();
+</script>
+<script>
+var allData,chapters,filtered,idx=0,mode=0,editing=false,adding=false,revealed=true;
 var dictState={};
-var mnRevealed=false;
-var DATA_VERSION='v4';
+var mnRevealed=true;
+var _animLock=false;
 function init(){
   try{
     var ver=localStorage.getItem('hxx_ver');
     if(ver!==DATA_VERSION){
       localStorage.removeItem('hxx_data');
-      localStorage.removeItem('hxx_dict');
       localStorage.setItem('hxx_ver',DATA_VERSION);
     }
     var s=localStorage.getItem('hxx_data');
@@ -144,20 +184,21 @@ function init(){
   filtered=allData.slice();
   populateChSel();render();setupSwipe();
 }
-function save(){localStorage.setItem('hxx_data',JSON.stringify({knowledge:allData}))}
-function saveDict(){localStorage.setItem('hxx_dict',JSON.stringify(dictState))}
+function save(){try{localStorage.setItem('hxx_data',JSON.stringify({knowledge:allData}))}catch(e){toast('保存失败：'+e.message)}}
+function saveDict(){try{localStorage.setItem('hxx_dict',JSON.stringify(dictState))}catch(e){toast('保存失败：'+e.message)}}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
-function populateChSel(){var sel=document.getElementById('chSel');chapters.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});sel.onchange=function(){filterCh(sel.value)}}
-function filterCh(c){filtered=c==='all'?allData.slice():allData.filter(function(i){return i.chapter===c});idx=0;revealed=false;mnRevealed=false;if(editing)toggleEdit();render()}
-function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);if(editing)toggleEdit();revealed=false;mnRevealed=false;render()}
+function populateChSel(){var sel=document.getElementById('chSel');var opts=[];for(var i=0;i<sel.options.length;i++)opts.push(sel.options[i].value);chapters.forEach(function(c){if(opts.indexOf(c)===-1){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)}});sel.onchange=function(){filterCh(sel.value)}}
+function filterCh(c){filtered=c==='all'?allData.slice():allData.filter(function(i){return i.chapter===c});idx=0;if(editing)toggleEdit();if(adding)toggleAdd();render()}
+function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);document.getElementById('tab2').classList.toggle('active',m===2);if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function progress(c,t){document.getElementById('pBar').style.width=(t>0?c/t*100:0)+'%';document.getElementById('pText').textContent=c+' / '+t}
 function getItem(){return filtered.length>0?filtered[idx]:null}
-function getDict(item){if(!dictState[item.id])dictState[item.id]={input:'',checked:false,score:null};return dictState[item.id]}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function getDict(item){var d=dictState[item.id];if(!d)return{input:'',checked:false,score:null};return{input:d.input,checked:d.checked,score:d.score,lastCheckTime:d.lastCheckTime,correctItems:d.correctItems,userItems:d.userItems,matchedIndices:d.matchedIndices}}
+function ensureDict(item){if(!dictState[item.id])dictState[item.id]={input:'',checked:false,score:null};return dictState[item.id]}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function ea(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function render(){var card=document.getElementById('card');var item=getItem();if(!item){card.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128218;</div><div>该章节暂无知识点</div></div>';progress(0,0);return}progress(idx+1,filtered.length);document.getElementById('swH').textContent=mode===1?'默写模式：先写答案再对照':'左右滑动切换题目';if(editing)renderEdit(item);else if(mode===0)renderRecite(item);else renderDictate(item)}
-function renderRecite(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var h='<div class="tags">';h+='<span class="tag '+cc+'" onclick="toggleEdit()">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='<span class="tag tmode">背诵</span></div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';h+='<hr class="sep">';h+='<button class="abtn'+(revealed?' rev':'')+'" onclick="toggleReveal()">'+(revealed?'收起答案':'查看答案')+'</button>';if(revealed){h+=formatAnswerList(item.content);if(item.mnemonic){h+='<div class="mn-eye-bar" onclick="toggleMn()"><div class="mn-eye-label">记忆口诀</div><div class="mn-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</div></div>';if(mnRevealed)h+='<div class="mnbox" style="margin-top:6px"><div class="mn-text">'+esc(item.mnemonic)+'</div></div>'}}card.innerHTML=h}
-function toggleReveal(){revealed=!revealed;if(!revealed)mnRevealed=false;render()}
+function render(){var card=document.getElementById('card');if(adding){renderAddForm();return}var item=getItem();if(!item&&mode!==2){card.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128218;</div><div>该章节暂无知识点</div></div>';progress(0,0);return}if(mode===2){renderStats();return}progress(idx+1,filtered.length);document.getElementById('swH').textContent=mode===1?'默写模式：先写答案再对照':'左右滑动切换题目';if(editing)renderEdit(item);else if(mode===0)renderRecite(item);else renderDictate(item)}
+function renderRecite(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var h='<div class="tags">';h+='<span class="tag '+cc+'" onclick="toggleEdit()">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';h+='<button class="abtn'+(revealed?' rev':'')+'" onclick="toggleReveal()">'+(revealed?'收起答案':'查看答案')+'</button>';if(revealed){h+=formatAnswerList(item.content)}card.innerHTML=h}
+function toggleReveal(){revealed=!revealed;render()}
 function toggleMn(){mnRevealed=!mnRevealed;render()}
 function formatAnswerList(content){
   if(!content)return '<div style="color:#bbb;font-size:17px">暂无答案</div>';
@@ -174,24 +215,113 @@ function formatAnswerList(content){
   }
   return '<div class="acontent" style="font-size:17px;line-height:1.9">'+esc(content)+'</div>';
 }
-function renderDictate(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var ds=getDict(item);var h='<div class="tags">';h+='<span class="tag '+cc+'">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='<span class="tag tmode" style="background:#fff3e0;color:#e65100">默写</span></div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mnbox"><div class="mn-label">记忆口诀提示</div><div class="mn-text">'+esc(item.mnemonic)+'</div></div>'}h+='<hr class="sep">';if(!ds.checked){h+='<div class="fld"><div class="fld-label">你的默写答案</div>';h+='<textarea class="dict-area" id="dictInput" placeholder="在此默写答案..." oninput="onDictInput()">'+esc(ds.input)+'</textarea></div>';h+='<button class="abtn check" onclick="checkDict()">提交校核</button>'}else{h+=renderCheckResult(item,ds)}card.innerHTML=h;var ta=document.getElementById('dictInput');if(ta){ta.focus();ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}}
-function onDictInput(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=getDict(item);ds.input=ta.value;ds.checked=false;ds.score=null;saveDict()}
-function normalizeText(t){t=t.replace(/[\s\n\r\t]+/g,'');t=t.replace(/\uff08/g,'(').replace(/\uff09/g,')');t=t.replace(/\uff0c/g,',').replace(/\u3002/g,'.').replace(/\u3001/g,',');t=t.replace(/\uff1b/g,';').replace(/\uff1a/g,':').replace(/\uff01/g,'!').replace(/\uff1f/g,'?');t=t.replace(/\u201c/g,'"').replace(/\u201d/g,'"');t=t.replace(/\u2018/g,"'" ).replace(/\u2019/g,"'" );t=t.replace(/\u3010/g,'[').replace(/\u3011/g,']');t=t.replace(/\u300a/g,'<').replace(/\u300b/g,'>');return t.toLowerCase()}
-function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=getDict(item);ds.input=ta?ta.value:'';ds.checked=true;var correct=normalizeText(item.content||'');var user=normalizeText(ds.input);function extractItems(text){if(!text)return[];var n=text.replace(/（(\d+)）/g,'($1)').replace(/(\d+)[、.]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0})}var s=text.split(/[。.]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s;return [text]}var correctItems=extractItems(correct);var userItems=extractItems(user);var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=normalizeText(userItems[j].replace(/^\(\d+\)/,''));if(cn===un||(cn.length>2&&un.indexOf(cn)!==-1)||(un.length>2&&cn.indexOf(un)!==-1)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(user===correct?100:0);ds.score=score;ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;saveDict();render();toast('校核完成：'+score+'分')}
-function renderCheckResult(item,ds){var h='<div class="check-result">';var cls=ds.score>=80?'perfect':ds.score>=40?'partial':'miss';var label=ds.score>=80?'掌握良好':ds.score>=40?'部分正确':'需要加强';h+='<div class="check-header '+cls+'"><span>校核结果</span><span>'+ds.score+'分 - '+label+'</span></div>';h+='<div class="check-body" style="background:#f5f5f5"><div style="font-weight:600;color:var(--text2);margin-bottom:6px">你的答案：</div><div>'+(esc(ds.input)||'<span style="color:#bbb">（未填写）</span>')+'</div></div>';h+='<div class="check-body"><div style="font-weight:600;color:var(--accent);margin-bottom:6px">正确答案：</div><div>'+esc(item.content||'暂无答案')+'</div></div>';if(ds.correctItems&&ds.correctItems.length>0){h+='<div class="check-body" style="font-size:13px;line-height:2"><div style="font-weight:600;margin-bottom:6px">逐条对比：</div>';var used=[];for(var i=0;i<ds.correctItems.length;i++){var ci=ds.correctItems[i].replace(/^\(\d+\)/,'').trim();var isMatch=ds.matchedIndices&&ds.matchedIndices.indexOf(i)!==-1;var matchIdx=-1;if(isMatch){var cni=normalizeText(ci);for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=normalizeText(ds.userItems[j].replace(/^\(\d+\)/,''));if(cni===uj||(cni.length>2&&uj.indexOf(cni)!==-1)||(uj.length>2&&cni.indexOf(uj)!==-1)){matchIdx=j;used.push(j);break}}}var ui=matchIdx>=0?ds.userItems[matchIdx].replace(/^\(\d+\)/,'').trim():'';h+='<div style="margin-bottom:4px"><span style="color:var(--text2)">('+(i+1)+') </span>';h+=isMatch?'<span class="correct-line">&#10003; '+esc(ci)+'</span>':'<span class="missed-line">&#10007; '+esc(ci)+'</span>';if(!isMatch&&ui)h+='<br><span class="extra-line">你的回答：'+esc(ui)+'</span>';h+='</div>'}for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=ds.userItems[j].replace(/^\(\d+\)/,'').trim();if(uj.length>0)h+='<div style="margin-bottom:4px"><span class="extra-line">&#9654; 多余项：'+esc(uj)+'</span></div>'}h+='</div>'}h+='<div style="padding:8px 14px"><button class="abtn" style="background:#e3f2fd;color:#1565c0" onclick="retryDict()">重新默写</button></div></div>';return h}
-function retryDict(){var item=getItem();if(!item)return;var ds=getDict(item);ds.checked=false;ds.score=null;ds.input='';saveDict();render()}
+function renderDictate(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var ds=ensureDict(item);var h='<div class="tags">';h+='<span class="tag '+cc+'">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';if(!ds.checked){h+='<div class="fld"><div class="fld-label">你的默写答案</div>';h+='<textarea class="dict-area" id="dictInput" placeholder="在此默写答案..." oninput="onDictInput()">'+esc(ds.input)+'</textarea></div>';h+='<button class="abtn check" onclick="checkDict()">提交校核</button>'}else{h+=renderCheckResult(item,ds)}card.innerHTML=h;var ta=document.getElementById('dictInput');if(ta){ta.focus();ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}}
+function onDictInput(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=ensureDict(item);ds.input=ta.value;ds.checked=false;ds.score=null;saveDict()}
+function normalizeText(t){t=t.replace(/[\s\n\r\t]+/g,'');t=t.replace(/\uff08/g,'(').replace(/\uff09/g,')');t=t.replace(/\uff0c/g,',').replace(/\u3002/g,'.').replace(/\u3001/g,',');t=t.replace(/\uff1b/g,';').replace(/\uff1a/g,':').replace(/\uff01/g,'!').replace(/\uff1f/g,'?');t=t.replace(/\u201c/g,'"').replace(/\u201d/g,'"');t=t.replace(/\u2018/g,"'" ).replace(/\u2019/g,"'" );t=t.replace(/\u3010/g,'[').replace(/\u3011/g,']');t=t.replace(/\u300a/g,'').replace(/\u300b/g,'');return t.toLowerCase()}
+function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=ensureDict(item);ds.input=ta?ta.value:'';ds.checked=true;ds.lastCheckTime=Date.now();var correct=normalizeText(item.content||'');var user=normalizeText(ds.input);function extractItems(text){if(!text)return[];var n=text.replace(/[\(（](\d+)[\)）]/g,'($1)').replace(/(\d+)[,.。、]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0}).map(function(x){var s=x.replace(/^\(\d+\)/,'').trim();return s.replace(/[。.,,；;！!？?：:、]+$/,'')})}var s=text.split(/[,.。、]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s.map(function(x){var t=x.trim();return t.replace(/[。.,,；;！!？?：:、]+$/,'')});return [text.trim().replace(/[。.,,；;！!？?：:、]+$/,'')]}var correctItems=extractItems(correct);var userItems=extractItems(user);var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=normalizeText(userItems[j].replace(/^\(\d+\)/,''));if(cn===un||(cn.length>2&&un.indexOf(cn)!==-1)||(un.length>2&&cn.indexOf(un)!==-1)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(user===correct?100:0);ds.score=score;ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;saveDict();render();toast('校核完成：'+score+'分')}
+function renderCheckResult(item,ds){var h='<div class="check-result">';var cls=ds.score>=80?'perfect':ds.score>=40?'partial':'miss';var label=ds.score>=80?'掌握良好':ds.score>=40?'部分正确':'需要加强';h+='<div class="check-header '+cls+'"><span>校核结果</span><span>'+ds.score+'分 - '+label+'</span></div>';h+='<div class="check-body" style="background:#f5f5f5"><div style="font-weight:600;color:var(--text2);margin-bottom:4px">你的答案：</div><div>'+(esc(ds.input)||'<span style="color:#bbb">（未填写）</span>')+'</div></div>';h+='<div class="check-body"><div style="font-weight:600;color:var(--accent);margin-bottom:4px">正确答案：</div><div>'+esc(item.content||'暂无答案')+'</div></div>';if(ds.correctItems&&ds.correctItems.length>0){h+='<div class="check-body" style="font-size:13px;line-height:2"><div style="font-weight:600;margin-bottom:4px">逐条对比：</div>';var used=[];for(var i=0;i<ds.correctItems.length;i++){var ci=ds.correctItems[i].replace(/^\(\d+\)/,'').trim();var isMatch=ds.matchedIndices&&ds.matchedIndices.indexOf(i)!==-1;var matchIdx=-1;if(isMatch){var cni=normalizeText(ci);for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=normalizeText(ds.userItems[j].replace(/^\(\d+\)/,''));if(cni===uj||(cni.length>2&&uj.indexOf(cni)!==-1)||(uj.length>2&&cni.indexOf(uj)!==-1)){matchIdx=j;used.push(j);break}}}var ui=matchIdx>=0?ds.userItems[matchIdx].replace(/^\(\d+\)/,'').trim():'';h+='<div style="margin-bottom:4px"><span style="color:var(--text2)">('+(i+1)+') </span>';h+=isMatch?'<span class="correct-line">&#10003; '+esc(ci)+'</span>':'<span class="missed-line">&#10007; '+esc(ci)+'</span>';if(!isMatch&&ui)h+='<br><span class="extra-line">你的回答：'+esc(ui)+'</span>';h+='</div>'}for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=ds.userItems[j].replace(/^\(\d+\)/,'').trim();if(uj.length>0)h+='<div style="margin-bottom:4px"><span class="extra-line">&#9654; 多余项：'+esc(uj)+'</span></div>'}h+='</div>'}h+='<div style="padding:6px 10px"><button class="abtn" style="background:#e3f2fd;color:#1565c0" onclick="retryDict()">重新默写</button></div></div>';return h}
+function retryDict(){var item=getItem();if(!item)return;var ds=ensureDict(item);ds.checked=false;ds.score=null;ds.input='';saveDict();render()}
 function renderEdit(item){var h='<div class="tags"><span class="tag tch" style="font-size:12px">编辑模式</span></div>';h+='<div class="fld"><div class="fld-label">问题标题</div><input class="ef big" id="eTitle" value="'+ea(item.title)+'"></div>';h+='<div class="fld"><div class="fld-label">星级分类</div><div class="star-sel">';['三星','四星','五星'].forEach(function(s){var c=s==='五星'?'so5':s==='四星'?'so4':'so3';h+='<div class="star-opt '+c+(item.category===s?' on':'')+'" onclick="setCat(\''+s+'\')">'+s+'</div>'});h+='</div><input type="hidden" id="eCat" value="'+ea(item.category)+'"></div>';h+='<div class="fld"><div class="fld-label">答案内容</div><textarea class="ef" id="eContent" rows="5">'+esc(item.content||'')+'</textarea></div>';h+='<div class="fld"><div class="fld-label">记忆口诀</div><input class="ef mn" id="eMn" value="'+ea(item.mnemonic||'')+'" placeholder="输入助记口诀"></div>';h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="background:var(--accent);color:#fff;flex:2" onclick="saveEdit()">&#10003; 保存</button><button class="btn" style="background:#f5f5f5;color:var(--text2);flex:1" onclick="toggleEdit()">取消</button></div>';document.getElementById('card').innerHTML=h}
-function toggleEdit(){editing=!editing;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);revealed=false;render()}
+function toggleEdit(){editing=!editing;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);if(editing)adding=false;render()}
+function toggleAdd(){adding=!adding;if(adding&&editing)editing=false;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);render()}
+function renderAddForm(){var card=document.getElementById('card');var chOpts='';chapters.forEach(function(c){chOpts+='<option value="'+esc(c)+'">'+esc(c)+'</option>'});var h='<div class="tags"><span class="tag tmode" style="background:#e3f2fd;color:#1565c0">新增知识点</span></div>';h+='<div class="fld"><div class="fld-label">问题标题 *</div><input class="ef big" id="aTitle" placeholder="输入知识点问题"></div>';h+='<div class="fld"><div class="fld-label">所属章节 *</div><select class="ef" id="aChapter" style="appearance:auto">'+chOpts+'</select></div>';h+='<div class="fld"><div class="fld-label">星级分类 *</div><div class="star-sel"><div class="star-opt so3 on" data-cat="三星" onclick="setAddCat(this)">三星</div><div class="star-opt so4" data-cat="四星" onclick="setAddCat(this)">四星</div><div class="star-opt so5" data-cat="五星" onclick="setAddCat(this)">五星</div></div></div>';h+='<div class="fld"><div class="fld-label">答案内容 *</div><textarea class="ef" id="aContent" rows="4" placeholder="输入答案内容，多条可用 (1)xxx (2)xxx 格式"></textarea></div>';h+='<div class="fld"><div class="fld-label">记忆口诀（选填）</div><input class="ef mn" id="aMn" placeholder="输入助记口诀"></div>';h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="background:var(--accent);color:#fff;flex:2" onclick="saveNew()">&#10003; 添加</button><button class="btn" style="background:#f5f5f5;color:var(--text2);flex:1" onclick="toggleAdd()">取消</button></div>';document.getElementById('pBar').style.width='0%';document.getElementById('pText').textContent='新增模式';document.getElementById('swH').textContent='填写知识点信息后点击添加';card.innerHTML=h;document.getElementById('aTitle').focus()}
+function setAddCat(el){var cats=document.querySelectorAll('.star-sel .star-opt');for(var i=0;i<cats.length;i++){cats[i].classList.remove('on')}el.classList.add('on')}
+function saveNew(){var title=document.getElementById('aTitle').value.trim();var chapter=document.getElementById('aChapter').value;var content=document.getElementById('aContent').value.trim();var mnemonic=document.getElementById('aMn').value.trim();var catEl=document.querySelector('.star-sel .star-opt.on');var category=catEl?catEl.getAttribute('data-cat'):'三星';if(!title){toast('请输入问题标题');document.getElementById('aTitle').focus();return}if(!content){toast('请输入答案内容');document.getElementById('aContent').focus();return}var id='custom_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);var newItem={id:id,title:title,chapter:chapter,category:category,content:content,mnemonic:mnemonic};allData.unshift(newItem);save();filtered=allData.slice();var sel=document.getElementById('chSel');if(sel.value!=='all'){filtered=allData.filter(function(i){return i.chapter===sel.value})}idx=0;adding=false;render();toast('知识点已添加');populateChSel()}
 function setCat(c){document.getElementById('eCat').value=c;var opts=document.querySelectorAll('.star-opt');for(var i=0;i<opts.length;i++){opts[i].classList.toggle('on',opts[i].textContent===c)}}
 function saveEdit(){var item=getItem();if(!item)return;item.title=document.getElementById('eTitle').value.trim();item.category=document.getElementById('eCat').value;item.content=document.getElementById('eContent').value.trim();item.mnemonic=document.getElementById('eMn').value.trim();var orig=allData.find(function(a){return a.id===item.id});if(orig){orig.title=item.title;orig.category=item.category;orig.content=item.content;orig.mnemonic=item.mnemonic}save();toggleEdit();render();toast('修改已保存')}
-function nextCard(){if(!filtered.length)return;if(editing)saveEdit();idx=(idx+1)%filtered.length;revealed=false;mnRevealed=false;anim('l')}
-function prevCard(){if(!filtered.length)return;if(editing)saveEdit();idx=(idx-1+filtered.length)%filtered.length;revealed=false;mnRevealed=false;anim('r')}
-function randomCard(){if(!filtered.length)return;if(editing)saveEdit();var n;do{n=Math.floor(Math.random()*filtered.length)}while(filtered.length>1&&n===idx);idx=n;revealed=false;mnRevealed=false;anim('l')}
-function anim(d){var c=document.getElementById('card');c.classList.add(d==='l'?'sw-l':'sw-r');setTimeout(function(){render();c.classList.remove('sw-l','sw-r')},150)}
-function exportData(){var json=JSON.stringify({chapters:chapters,knowledge:allData},null,2);var b=new Blob([json],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_知识库_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('数据已导出')}
-function setupSwipe(){var c=document.getElementById('cWrap');var sx,sy;c.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});c.addEventListener('touchend',function(e){if(editing)return;if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT')return;var dx=e.changedTouches[0].clientX-sx;var dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){dx<0?nextCard():prevCard()}},{passive:true})}
-document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowRight')nextCard();if(e.key==='ArrowLeft')prevCard();if(e.key==='Enter'){if(mode===1)checkDict();else toggleReveal()}if(e.key==='e'||e.key==='E')toggleEdit();if(e.key==='r'||e.key==='R')randomCard();if(e.key==='Tab'){e.preventDefault();switchMode(mode===0?1:0)}});
-init();
+function nextCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();revealed=false;idx=(idx+1)%filtered.length;anim('l')}
+function prevCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();revealed=false;idx=(idx-1+filtered.length)%filtered.length;anim('r')}
+function randomCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();revealed=false;var n;do{n=Math.floor(Math.random()*filtered.length)}while(filtered.length>1&&n===idx);idx=n;anim('l')}
+function anim(d){if(_animLock)return;_animLock=true;var c=document.getElementById('card');c.classList.add(d==='l'?'sw-l':'sw-r');setTimeout(function(){render();c.classList.remove('sw-l','sw-r');_animLock=false},150)}
+function exportData(){var json=JSON.stringify({chapters:chapters,knowledge:allData},null,2);var b=new Blob([json],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_数据导出_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('数据已导出')}
+function exportDataJs(){var json=JSON.stringify({chapters:chapters,knowledge:allData});var code='var INIT_DATA='+json+';';var b=new Blob([code],{type:'application/javascript'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='data.js';a.click();URL.revokeObjectURL(a.href);toast('data.js已保存，请将文件发送给我部署')}
+function setupSwipe(){var c=document.getElementById('cWrap');var sx,sy;c.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});c.addEventListener('touchend',function(e){if(editing||mode===2)return;if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT')return;var dx=e.changedTouches[0].clientX-sx;var dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50&&Math.abs(dy)<20){dx<0?nextCard():prevCard()}},{passive:true})}
+function getWeekNumber(d){var date=new Date(d);date.setHours(0,0,0,0);date.setDate(date.getDate()+3-(date.getDay()+6)%7);var year=date.getFullYear();var jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);var dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1;if(dayNr<1){year--;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}else if(dayNr>366||(dayNr>365&&((year%4!==0)||(year%100===0&&year%400!==0)))){year++;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}return year+'-W'+String(Math.ceil(dayNr/7)).padStart(2,'0')}
+function formatWeekLabel(weekKey){var parts=weekKey.split('-W');return parts[0]+'年第'+parts[1]+'周'}
+function calcStats(){
+  var entries=Object.keys(dictState).map(function(k){var d=dictState[k];d._id=k;return d}).filter(function(d){return d.checked&&d.score!==null});
+  if(entries.length===0)return null;
+  var total=entries.length,sum=0,maxS=0,minS=100;
+  for(var i=0;i<entries.length;i++){sum+=entries[i].score;maxS=Math.max(maxS,entries[i].score);minS=Math.min(minS,entries[i].score)}
+  var avg=Math.round(sum/total);
+  var chMap={},weekMap={};
+  for(var i=0;i<entries.length;i++){
+    var e=entries[i];
+    var item=allData.find(function(a){return a.id===e._id});
+    var ch=item?item.chapter:'未知章节';
+    if(!chMap[ch])chMap[ch]={scores:[],total:0,sum:0};
+    chMap[ch].scores.push(e.score);chMap[ch].total++;chMap[ch].sum+=e.score;
+    var wk=e.lastCheckTime?getWeekNumber(e.lastCheckTime):getWeekNumber(Date.now());
+    if(!weekMap[wk])weekMap[wk]={scores:[],total:0,sum:0};
+    weekMap[wk].scores.push(e.score);weekMap[wk].total++;weekMap[wk].sum+=e.score;
+  }
+  var chList=Object.keys(chMap).map(function(c){return{name:c,avg:Math.round(chMap[c].sum/chMap[c].total),total:chMap[c].total}}).sort(function(a,b){return b.avg-a.avg});
+  var weekKeys=Object.keys(weekMap).sort();
+  var weekList=weekKeys.map(function(w){return{week:w,label:formatWeekLabel(w),avg:Math.round(weekMap[w].sum/weekMap[w].total),total:weekMap[w].total}});
+  return{total:total,avg:avg,max:maxS,min:minS,chapters:chList,weeks:weekList};
+}
+function renderStats(){
+  var card=document.getElementById('card');
+  var stats=calcStats();
+  document.getElementById('pBar').style.width='0%';
+  document.getElementById('pText').textContent='统计分析';
+  document.getElementById('swH').textContent='';
+  if(!stats){
+    card.innerHTML='<div class="st-empty"><div class="st-empty-icon">&#128202;</div><div>暂无默写记录</div><div style="font-size:12px;margin-top:6px">先去默写模式完成几道题目，再来查看分析</div></div>';
+    return;
+  }
+  var h='';
+  h+='<div class="st-card">';
+  h+='<div class="st-title">&#128200; 总体概览</div>';
+  h+='<div class="st-row">';
+  h+='<div class="st-cell"><div class="st-cell-val">'+stats.total+'</div><div class="st-cell-lab">默写次数</div></div>';
+  h+='<div class="st-cell"><div class="st-cell-val" style="color:'+(stats.avg>=80?'var(--accent)':stats.avg>=60?'var(--warn)':'var(--err)')+'">'+stats.avg+'%</div><div class="st-cell-lab">平均正确率</div></div>';
+  h+='<div class="st-cell"><div class="st-cell-val">'+stats.max+'</div><div class="st-cell-lab">最高分</div></div>';
+  h+='<div class="st-cell"><div class="st-cell-val" style="color:var(--err)">'+stats.min+'</div><div class="st-cell-lab">最低分</div></div>';
+  h+='</div></div>';
+  if(stats.chapters.length>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128218; 章节正确率排名</div>';
+    var best=stats.chapters[0],worst=stats.chapters[stats.chapters.length-1];
+    h+='<div style="margin-bottom:10px">';
+    h+='<div style="font-size:12px;color:var(--text2);margin-bottom:4px">&#128077; 最佳章节：<span style="color:var(--accent);font-weight:700">'+esc(best.name)+'</span>（'+best.avg+'%，'+best.total+'次）</div>';
+    if(stats.chapters.length>1)h+='<div style="font-size:12px;color:var(--text2)">&#128078; 待加强：<span style="color:var(--err);font-weight:700">'+esc(worst.name)+'</span>（'+worst.avg+'%，'+worst.total+'次）</div>';
+    h+='</div>';
+    for(var i=0;i<stats.chapters.length;i++){
+      var c=stats.chapters[i];
+      var pct=c.avg;
+      var barCls=pct>=80?'':pct>=60?'mid':'low';
+      h+='<div class="st-ch-row">';
+      h+='<span class="st-ch-name">'+(i+1)+'. '+esc(c.name)+'</span>';
+      h+='<div class="st-bar-wrap" style="flex:1;max-width:140px"><div class="st-bar-fill '+barCls+'" style="width:'+pct+'%"></div></div>';
+      h+='<span class="st-ch-pct" style="color:'+(pct>=80?'var(--accent)':pct>=60?'var(--warn)':'var(--err)')+'">'+pct+'%</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  if(stats.weeks.length>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128197; 每周趋势</div>';
+    var maxWeekAvg=0;
+    for(var i=0;i<stats.weeks.length;i++)maxWeekAvg=Math.max(maxWeekAvg,stats.weeks[i].avg);
+    if(maxWeekAvg<1)maxWeekAvg=100;
+    h+='<div class="st-week-wrap">';
+    for(var i=0;i<stats.weeks.length;i++){
+      var w=stats.weeks[i];
+      var barH=Math.round(w.avg/maxWeekAvg*80);
+      var barCls=w.avg>=80?'':w.avg>=60?'mid':'low';
+      h+='<div class="st-week-col">';
+      h+='<div class="st-week-bar '+barCls+'" style="height:'+barH+'px"></div>';
+      h+='<span class="st-week-lab">'+w.label.replace('年第','<br>第')+'</span>';
+      h+='<span class="st-week-lab" style="font-weight:700">'+w.avg+'%</span>';
+      h+='</div>';
+    }
+    h+='</div></div>';
+  }
+  card.innerHTML=h;
+}
+document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowRight')nextCard();if(e.key==='ArrowLeft')prevCard();if(e.key==='Enter'){if(mode===1)checkDict();else if(mode===0)toggleReveal()}if(e.key==='e'||e.key==='E')toggleEdit();if(e.key==='r'||e.key==='R')randomCard();if(e.key==='Tab'){e.preventDefault();switchMode(mode===0?1:mode===1?2:0)}});
 </script>
 </body>
 </html>
+
