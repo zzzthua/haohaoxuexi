@@ -210,11 +210,15 @@ function init(){
     }else{
       allData=INIT_DATA.knowledge;
     }
+    var localDict={};
     var ds=localStorage.getItem('hxx_dict');
-    if(ds)dictState=JSON.parse(ds);
+    if(ds)localDict=JSON.parse(ds);
+    var cloudDict=INIT_DATA.dict||{};
+    dictState=mergeDict(localDict,cloudDict);
+    saveDict();
   }catch(e){
     allData=INIT_DATA.knowledge;
-    dictState={};
+    dictState=INIT_DATA.dict||{};
   }
   chapters=INIT_DATA.chapters;
   filtered=allData.slice();
@@ -222,6 +226,27 @@ function init(){
 }
 function save(){try{localStorage.setItem('hxx_data',JSON.stringify({knowledge:allData}))}catch(e){toast('保存失败：'+e.message)}}
 function saveDict(){try{localStorage.setItem('hxx_dict',JSON.stringify(dictState))}catch(e){toast('保存失败：'+e.message)}}
+function mergeDict(local,cloud){
+  var merged={};
+  var keys=Object.keys(local).concat(Object.keys(cloud));
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];if(merged[k])continue;
+    var l=local[k],c=cloud[k];
+    if(!l){merged[k]=c;continue}
+    if(!c){merged[k]=l;continue}
+    var lt=l.lastCheckTime||0,ct=c.lastCheckTime||0;
+    merged[k]=lt>=ct?l:c;
+  }
+  return merged;
+}
+function slimDict(d){
+  var out={};
+  Object.keys(d).forEach(function(k){
+    var e=d[k];if(!e||!e.checked)return;
+    out[k]={input:e.input||'',checked:e.checked,score:e.score,lastCheckTime:e.lastCheckTime||0};
+  });
+  return out;
+}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
 function populateChSel(){var sel=document.getElementById('chSel');var opts=[];for(var i=0;i<sel.options.length;i++)opts.push(sel.options[i].value);chapters.forEach(function(c){if(opts.indexOf(c)===-1){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)}});sel.onchange=function(){filterCh(sel.value)}}
 function filterCh(c){filtered=c==='all'?allData.slice():allData.filter(function(i){return i.chapter===c});idx=0;if(editing)toggleEdit();if(adding)toggleAdd();render()}
@@ -269,7 +294,7 @@ function nextCard(){if(!filtered.length||adding||_animLock)return;if(editing)sav
 function prevCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();revealed=false;idx=(idx-1+filtered.length)%filtered.length;anim('r')}
 function randomCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();revealed=false;var n;do{n=Math.floor(Math.random()*filtered.length)}while(filtered.length>1&&n===idx);idx=n;anim('l')}
 function anim(d){if(_animLock)return;_animLock=true;var c=document.getElementById('card');c.classList.add(d==='l'?'sw-l':'sw-r');setTimeout(function(){render();c.classList.remove('sw-l','sw-r');_animLock=false},150)}
-function exportData(){var json=JSON.stringify({chapters:chapters,knowledge:allData},null,2);var b=new Blob([json],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_数据导出_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('数据已导出')}
+function exportData(){var json=JSON.stringify({chapters:chapters,knowledge:allData,dict:slimDict(dictState)},null,2);var b=new Blob([json],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_数据导出_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('数据已导出')}
 var SYNC_REPO='zzzthua/haohaoxuexi';
 var _syncSha=null;
 function getSyncToken(){return localStorage.getItem('hxx_sync_token')||''}
@@ -308,7 +333,7 @@ function cloudSync(){
   xhr1.send();
 }
 function doSyncPush(tk){
-  var json=JSON.stringify({chapters:chapters,knowledge:allData});
+  var json=JSON.stringify({chapters:chapters,knowledge:allData,dict:slimDict(dictState)});
   var code='var INIT_DATA='+json+';';
   var payload={message:'Sync data via app - '+new Date().toLocaleString('zh-CN'),content:btoa(unescape(encodeURIComponent(code)))};
   if(_syncSha)payload.sha=_syncSha;
