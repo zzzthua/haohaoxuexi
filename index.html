@@ -137,22 +137,56 @@ textarea.ef{min-height:80px}
 </div>
 <div class="toast" id="toast"></div>
 <script>
-var DATA_VERSION='v11';
+var DATA_VERSION='v12';
 (function(){
   var s=document.createElement('script');
   s.src='data.js?v='+DATA_VERSION;
+  var loaded=false;
   s.onload=function(){
+    loaded=true;
     if(typeof INIT_DATA!=='undefined'&&INIT_DATA&&INIT_DATA.knowledge){
       init();
     }else{
-      document.getElementById('card').innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#9888;</div><div>数据格式错误</div></div>';
+      tryFallback('数据格式错误');
     }
   };
   s.onerror=function(){
-    document.getElementById('card').innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128260;</div><div>数据加载失败，请检查网络连接<br>或尝试刷新页面</div><button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;cursor:pointer">刷新页面</button></div>';
-    document.getElementById('swH').style.display='none';
+    loaded=true;
+    tryFallback('数据加载失败，请检查网络连接<br>或尝试刷新页面');
   };
   document.head.appendChild(s);
+
+  setTimeout(function(){
+    if(!loaded){
+      s.onerror=s.onload=null;
+      tryFallback('数据加载超时，请检查网络连接<br>或尝试刷新页面');
+    }
+  },10000);
+
+  function tryFallback(msg){
+    try{
+      var localData=localStorage.getItem('hxx_data');
+      if(localData){
+        var parsed=JSON.parse(localData);
+        if(parsed&&parsed.knowledge&&parsed.knowledge.length>0){
+          window.INIT_DATA={knowledge:parsed.knowledge,chapters:extractChapters(parsed.knowledge)};
+          init();
+          setTimeout(function(){toast('已使用本地缓存数据')},100);
+          return;
+        }
+      }
+    }catch(e){}
+    document.getElementById('card').innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128260;</div><div>'+msg+'</div><button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;cursor:pointer">刷新页面</button></div>';
+    document.getElementById('swH').style.display='none';
+  }
+
+  function extractChapters(knowledge){
+    var chs=[];
+    knowledge.forEach(function(i){
+      if(i.chapter&&chs.indexOf(i.chapter)===-1)chs.push(i.chapter);
+    });
+    return chs;
+  }
 })();
 </script>
 <script>
@@ -164,7 +198,6 @@ function init(){
   try{
     var ver=localStorage.getItem('hxx_ver');
     if(ver!==DATA_VERSION){
-      localStorage.removeItem('hxx_data');
       localStorage.setItem('hxx_ver',DATA_VERSION);
     }
     var s=localStorage.getItem('hxx_data');
