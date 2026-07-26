@@ -151,7 +151,7 @@ textarea.ef{min-height:80px}
   <div class="export-menu-item" onclick="exportExcel()">Excel 格式</div>
 </div>
 <script>
-var DATA_VERSION='v14';
+var DATA_VERSION='v15';
 (function(){
   var s=document.createElement('script');
   s.src='data.js?v='+DATA_VERSION+'&t='+Date.now();
@@ -327,7 +327,7 @@ function buildExportRows(){return allData.map(function(it,i){return '<tr><td sty
 function exportWord(){closeExportMenu();var d=new Date();var ds=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';var rows=buildExportRows();var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>好好学习</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]--><style>@page{size:A4 landscape;margin:1cm}body{font-family:微软雅黑,Arial,sans-serif;font-size:10.5pt}h1{font-size:18pt;text-align:center;margin-bottom:5pt}.info{text-align:center;color:#666;font-size:9pt;margin-bottom:15pt}table{border-collapse:collapse;width:100%;font-size:9pt}th,td{border:0.5pt solid #999;padding:3pt 4pt;vertical-align:top}th{background:#4caf50;color:#fff;font-weight:bold}tr:nth-child(even){background:#f7f9fc}</style></head><body><h1>好好学习 - 知识点导出</h1><div class="info">导出日期：'+ds+' ｜ 共 '+allData.length+' 条知识点</div><table><tr><th style="width:30pt">序号</th><th style="width:120pt">标题</th><th style="width:40pt">分类</th><th style="width:80pt">章节</th><th>知识内容</th><th style="width:100pt">记忆口诀</th><th style="width:50pt">掌握程度</th></tr>'+rows+'</table></body></html>';var b=new Blob(['\ufeff'+html],{type:'application/msword;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_知识点_'+d.toISOString().slice(0,10)+'.doc';a.click();URL.revokeObjectURL(a.href);toast('Word文档已导出')}
 function exportExcel(){closeExportMenu();var d=new Date();var rows=buildExportRows();var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>知识点</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table border="1"><tr style="background:#4caf50;color:#fff;font-weight:bold"><td>序号</td><td>标题</td><td>分类</td><td>章节</td><td>知识内容</td><td>记忆口诀</td><td>掌握程度</td></tr>'+rows+'</table></body></html>';var b=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_知识点_'+d.toISOString().slice(0,10)+'.xls';a.click();URL.revokeObjectURL(a.href);toast('Excel文件已导出')}
 var SYNC_REPO='zzzthua/haohaoxuexi';
-var _syncSha=null;
+var _syncSha=null,_cloudData=null;
 var _tkP1='ghp_uw3Tr2ta';var _tkP2='kL8EDsBFUIvA';var _tkP3='1VpCqAxFw72i';var _tkP4='0ZPm';
 function getSyncToken(){
   var saved=localStorage.getItem('hxx_sync_token')||'';
@@ -355,22 +355,58 @@ function cloudSync(){
   var btn=document.getElementById('syncBtn');
   if(btn.disabled)return;
   btn.disabled=true;btn.textContent='同步中...';btn.style.opacity='0.6';
-  _syncSha=null;
+  _syncSha=null;_cloudData=null;
   var xhr1=new XMLHttpRequest();
   xhr1.open('GET','https://api.github.com/repos/'+SYNC_REPO+'/contents/data.js');
   xhr1.setRequestHeader('Authorization','Bearer '+tk);
   xhr1.setRequestHeader('Accept','application/vnd.github.v3+json');
   xhr1.onload=function(){
     if(xhr1.status===200){
-      try{var info=JSON.parse(xhr1.responseText);_syncSha=info.sha}catch(e){}
+      try{
+        var info=JSON.parse(xhr1.responseText);
+        _syncSha=info.sha;
+        var code=decodeURIComponent(escape(atob(info.content)));
+        var s=code.indexOf('{'),e=code.lastIndexOf('}')+1;
+        _cloudData=JSON.parse(code.slice(s,e));
+      }catch(err){}
     }
     doSyncPush(tk);
   };
   xhr1.onerror=function(){doSyncPush(tk)};
   xhr1.send();
 }
+function mergeKnowledge(local,cloud){
+  if(!cloud||!cloud.knowledge)return local;
+  if(!local||!local.knowledge)return cloud;
+  var cloudById={},localById={};
+  cloud.knowledge.forEach(function(k){cloudById[k.id]=k});
+  local.knowledge.forEach(function(k){localById[k.id]=k});
+  var allIds=Object.keys(cloudById).map(Number).concat(Object.keys(localById).map(Number).filter(function(id){return!cloudById[id]}));
+  allIds.sort(function(a,b){return a-b});
+  var merged=allIds.map(function(id){
+    var cl=cloudById[id],lo=localById[id];
+    if(!cl)return lo;
+    if(!lo)return cl;
+    var hasLocalEdit=lo.status!=='未开始'||(lo.mnemonic&&lo.mnemonic.length>0);
+    var hasCloudEdit=cl.status!=='未开始'||(cl.mnemonic&&cl.mnemonic.length>0);
+    if(hasLocalEdit&&!hasCloudEdit)return lo;
+    if(!hasLocalEdit&&hasCloudEdit)return cl;
+    if(cl.content&&cl.content.length>(lo.content?lo.content.length:0))return cl;
+    return lo;
+  });
+  var chapters=(cloud.knowledge.length>=local.knowledge.length)?(cloud.chapters||[]):(local.chapters||[]);
+  return{chapters:chapters,knowledge:merged,dict:cloud.dict||{}};
+}
 function doSyncPush(tk){
-  var json=JSON.stringify({chapters:chapters,knowledge:allData,dict:slimDict(dictState)});
+  var mergedData=mergeKnowledge({chapters:chapters,knowledge:allData,dict:slimDict(dictState)},_cloudData);
+  if(_cloudData&&_cloudData.knowledge&&_cloudData.knowledge.length>allData.length){
+    allData=mergedData.knowledge;
+    chapters=mergedData.chapters;
+    filtered=allData.slice();
+    save();
+    populateChSel();render();
+  }
+  var json=JSON.stringify({chapters:mergedData.chapters,knowledge:mergedData.knowledge,dict:slimDict(dictState)});
   var code='var INIT_DATA='+json+';';
   var payload={message:'Sync data via app - '+new Date().toLocaleString('zh-CN'),content:btoa(unescape(encodeURIComponent(code)))};
   if(_syncSha)payload.sha=_syncSha;
@@ -386,7 +422,7 @@ function doSyncPush(tk){
       if(res.commit&&res.commit.sha){
         DATA_VERSION='v'+Date.now().toString(36);
         localStorage.setItem('hxx_ver',DATA_VERSION);
-        toast('同步成功');
+        toast('同步成功 ('+allData.length+'条)');
       }else if(res.message){
         toast('同步失败: '+res.message.substring(0,30));
       }
