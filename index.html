@@ -115,6 +115,33 @@ textarea.ef{min-height:80px}
 .export-menu-item{padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)}
 .export-menu-item:last-child{border-bottom:none}
 .export-menu-item:active{background:#f0f0f0}
+.st-dist-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
+.st-dist-label{width:50px;text-align:right;font-weight:600;color:var(--text2);flex-shrink:0}
+.st-dist-bar-wrap{flex:1;height:14px;background:#f0f0f0;border-radius:7px;overflow:hidden}
+.st-dist-bar{height:100%;border-radius:7px;transition:width .5s;min-width:2px}
+.st-dist-count{width:24px;text-align:right;font-weight:700;font-size:11px;flex-shrink:0}
+.st-rec-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+.st-rec-item:last-child{border-bottom:none}
+.st-rec-score{font-weight:700;font-size:14px;min-width:36px;text-align:center;flex-shrink:0}
+.st-rec-info{flex:1;min-width:0}
+.st-rec-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-rec-meta{font-size:11px;color:var(--text2)}
+.st-rec-time{font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0}
+.st-mastery-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.st-mastery-label{width:80px;font-weight:600;text-align:right;font-size:11px;flex-shrink:0}
+.st-mastery-bar-wrap{flex:1;height:18px;background:#f0f0f0;border-radius:9px;overflow:hidden}
+.st-mastery-bar{height:100%;border-radius:9px;transition:width .5s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;font-weight:700;color:#fff;min-width:2px;white-space:nowrap}
+.st-mastery-count{font-weight:700;flex-shrink:0}
+.st-cat-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
+.st-cat-bar-wrap{flex:1;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden}
+.st-cat-bar{height:100%;border-radius:4px;transition:width .5s}
+.st-cat-pct{width:42px;text-align:right;font-weight:700;flex-shrink:0}
+.st-day-wrap{display:flex;align-items:flex-end;gap:3px;height:80px;padding:6px 0}
+.st-day-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.st-day-bar{width:100%;border-radius:2px 2px 0 0;background:var(--accent);min-height:2px;transition:height .4s}
+.st-day-bar.low{background:var(--err)}.st-day-bar.mid{background:var(--warn)}
+.st-day-lab{font-size:9px;color:var(--text2);white-space:nowrap}
+.st-day-count{font-size:9px;font-weight:700;color:var(--text2)}
 </style>
 </head>
 <body>
@@ -151,7 +178,7 @@ textarea.ef{min-height:80px}
   <div class="export-menu-item" onclick="exportExcel()">Excel 格式</div>
 </div>
 <script>
-var DATA_VERSION='v18';
+var DATA_VERSION='v19';
 (function(){
   var s=document.createElement('script');
   s.src='data.js?v='+DATA_VERSION+'&t='+Date.now();
@@ -458,29 +485,88 @@ function doSyncPush(tk){
   xhr2.send(JSON.stringify(payload));
 }
 function setupSwipe(){var c=document.getElementById('cWrap');var sx,sy;c.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});c.addEventListener('touchend',function(e){if(editing||mode===2)return;if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT')return;var dx=e.changedTouches[0].clientX-sx;var dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50&&Math.abs(dy)<20){dx<0?nextCard():prevCard()}},{passive:true})}
+function formatRelativeTime(ts){
+  if(!ts)return'';
+  var now=new Date();var then=new Date(ts);
+  var today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+  var yesterday=today-86400000;
+  var thenDay=new Date(then.getFullYear(),then.getMonth(),then.getDate()).getTime();
+  var timeStr=String(then.getHours()).padStart(2,'0')+':'+String(then.getMinutes()).padStart(2,'0');
+  if(thenDay===today)return'今天 '+timeStr;
+  if(thenDay===yesterday)return'昨天 '+timeStr;
+  return String(then.getMonth()+1)+'/'+String(then.getDate())+' '+timeStr;
+}
 function getWeekNumber(d){var date=new Date(d);date.setHours(0,0,0,0);date.setDate(date.getDate()+3-(date.getDay()+6)%7);var year=date.getFullYear();var jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);var dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1;if(dayNr<1){year--;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}else if(dayNr>366||(dayNr>365&&((year%4!==0)||(year%100===0&&year%400!==0)))){year++;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}return year+'-W'+String(Math.ceil(dayNr/7)).padStart(2,'0')}
 function formatWeekLabel(weekKey){var parts=weekKey.split('-W');return parts[0]+'年第'+parts[1]+'周'}
 function calcStats(){
   var entries=Object.keys(dictState).map(function(k){var d=dictState[k];d._id=k;return d}).filter(function(d){return d.checked&&d.score!==null});
   if(entries.length===0)return null;
   var total=entries.length,sum=0,maxS=0,minS=100;
-  for(var i=0;i<entries.length;i++){sum+=entries[i].score;maxS=Math.max(maxS,entries[i].score);minS=Math.min(minS,entries[i].score)}
+  var today=new Date();today.setHours(0,0,0,0);var todayTs=today.getTime();
+  var tomorrowTs=todayTs+86400000;
+  var todayCount=0,todaySum=0,todayMax=0;
+  for(var i=0;i<entries.length;i++){
+    sum+=entries[i].score;maxS=Math.max(maxS,entries[i].score);minS=Math.min(minS,entries[i].score);
+    if(entries[i].lastCheckTime>=todayTs&&entries[i].lastCheckTime<tomorrowTs){todayCount++;todaySum+=entries[i].score;todayMax=Math.max(todayMax,entries[i].score)}
+  }
   var avg=Math.round(sum/total);
-  var chMap={},weekMap={};
+  var todayAvg=todayCount>0?Math.round(todaySum/todayCount):null;
+  var bins=[{label:'0-20',min:0,max:20,color:'var(--err)'},{label:'21-40',min:21,max:40,color:'#ff7043'},{label:'41-60',min:41,max:60,color:'var(--warn)'},{label:'61-80',min:61,max:80,color:'#66bb6a'},{label:'81-99',min:81,max:99,color:'var(--accent)'},{label:'100',min:100,max:100,color:'#2e7d32'}];
+  for(var i=0;i<bins.length;i++)bins[i].count=0;
+  var maxBinCount=0;
+  for(var i=0;i<entries.length;i++){
+    var s=entries[i].score;
+    for(var j=0;j<bins.length;j++){if(s>=bins[j].min&&s<=bins[j].max){bins[j].count++;maxBinCount=Math.max(maxBinCount,bins[j].count);break}}
+  }
+  var masteryMap={};
+  for(var i=0;i<entries.length;i++){
+    var id=entries[i]._id;
+    if(!masteryMap[id]||entries[i].score>masteryMap[id])masteryMap[id]=entries[i].score;
+  }
+  var masteryLevels=[{label:'完全掌握',min:100,max:100,color:'#2e7d32',count:0},{label:'基本掌握',min:80,max:99,color:'var(--accent)',count:0},{label:'部分掌握',min:60,max:79,color:'var(--warn)',count:0},{label:'需要加强',min:0,max:59,color:'var(--err)',count:0}];
+  var practicedIds=Object.keys(masteryMap);
+  for(var i=0;i<practicedIds.length;i++){
+    var s=masteryMap[practicedIds[i]];
+    for(var j=0;j<masteryLevels.length;j++){if(s>=masteryLevels[j].min&&s<=masteryLevels[j].max){masteryLevels[j].count++;break}}
+  }
+  var catMap={};
+  for(var i=0;i<entries.length;i++){
+    var item=allData.find(function(a){return a.id===entries[i]._id});
+    var cat=item?item.category:'未知';
+    if(!catMap[cat])catMap[cat]={scores:[],total:0,sum:0};
+    catMap[cat].scores.push(entries[i].score);catMap[cat].total++;catMap[cat].sum+=entries[i].score;
+  }
+  var catList=['三星','四星','五星'].filter(function(c){return catMap[c]}).map(function(c){return{name:c,avg:Math.round(catMap[c].sum/catMap[c].total),total:catMap[c].total}});
+  var chMap={};
   for(var i=0;i<entries.length;i++){
     var e=entries[i];
     var item=allData.find(function(a){return a.id===e._id});
     var ch=item?item.chapter:'未知章节';
     if(!chMap[ch])chMap[ch]={scores:[],total:0,sum:0};
     chMap[ch].scores.push(e.score);chMap[ch].total++;chMap[ch].sum+=e.score;
-    var wk=e.lastCheckTime?getWeekNumber(e.lastCheckTime):getWeekNumber(Date.now());
-    if(!weekMap[wk])weekMap[wk]={scores:[],total:0,sum:0};
-    weekMap[wk].scores.push(e.score);weekMap[wk].total++;weekMap[wk].sum+=e.score;
   }
   var chList=Object.keys(chMap).map(function(c){return{name:c,avg:Math.round(chMap[c].sum/chMap[c].total),total:chMap[c].total}}).sort(function(a,b){return b.avg-a.avg});
-  var weekKeys=Object.keys(weekMap).sort();
-  var weekList=weekKeys.map(function(w){return{week:w,label:formatWeekLabel(w),avg:Math.round(weekMap[w].sum/weekMap[w].total),total:weekMap[w].total}});
-  return{total:total,avg:avg,max:maxS,min:minS,chapters:chList,weeks:weekList};
+  var dayMap={};
+  var now=new Date();
+  for(var d=0;d<14;d++){
+    var dt=new Date(now);dt.setDate(dt.getDate()-d);dt.setHours(0,0,0,0);
+    var key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    dayMap[key]={scores:[],total:0,sum:0,label:String(dt.getMonth()+1)+'/'+String(dt.getDate())};
+  }
+  for(var i=0;i<entries.length;i++){
+    var t=entries[i].lastCheckTime||Date.now();
+    var dt=new Date(t);dt.setHours(0,0,0,0);
+    var key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    if(dayMap[key]){dayMap[key].scores.push(entries[i].score);dayMap[key].total++;dayMap[key].sum+=entries[i].score;}
+  }
+  var dayKeys=Object.keys(dayMap).sort();
+  var dayList=dayKeys.map(function(k){return{date:k,label:dayMap[k].label,avg:dayMap[k].total>0?Math.round(dayMap[k].sum/dayMap[k].total):0,total:dayMap[k].total}});
+  var sorted=[].concat(entries).sort(function(a,b){return (b.lastCheckTime||0)-(a.lastCheckTime||0)});
+  var recent=sorted.slice(0,15).map(function(e){
+    var item=allData.find(function(a){return a.id===e._id});
+    return{title:item?item.title:'未知',chapter:item?item.chapter:'未知',score:e.score,time:e.lastCheckTime||0};
+  });
+  return{total:total,avg:avg,max:maxS,min:minS,todayCount:todayCount,todayAvg:todayAvg,todayMax:todayMax,distribution:bins,maxBinCount:maxBinCount,mastery:masteryLevels,practicedCount:practicedIds.length,totalKnowledge:allData.length,categories:catList,chapters:chList,days:dayList,recent:recent};
 }
 function renderStats(){
   var card=document.getElementById('card');
@@ -493,6 +579,15 @@ function renderStats(){
     return;
   }
   var h='';
+  if(stats.todayCount>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128197; 今日概览</div>';
+    h+='<div class="st-row">';
+    h+='<div class="st-cell"><div class="st-cell-val">'+stats.todayCount+'</div><div class="st-cell-lab">今日默写</div></div>';
+    h+='<div class="st-cell"><div class="st-cell-val" style="color:'+(stats.todayAvg>=80?'var(--accent)':stats.todayAvg>=60?'var(--warn)':'var(--err)')+'">'+stats.todayAvg+'%</div><div class="st-cell-lab">今日均分</div></div>';
+    h+='<div class="st-cell"><div class="st-cell-val">'+stats.todayMax+'</div><div class="st-cell-lab">今日最佳</div></div>';
+    h+='</div></div>';
+  }
   h+='<div class="st-card">';
   h+='<div class="st-title">&#128200; 总体概览</div>';
   h+='<div class="st-row">';
@@ -500,7 +595,52 @@ function renderStats(){
   h+='<div class="st-cell"><div class="st-cell-val" style="color:'+(stats.avg>=80?'var(--accent)':stats.avg>=60?'var(--warn)':'var(--err)')+'">'+stats.avg+'%</div><div class="st-cell-lab">平均正确率</div></div>';
   h+='<div class="st-cell"><div class="st-cell-val">'+stats.max+'</div><div class="st-cell-lab">最高分</div></div>';
   h+='<div class="st-cell"><div class="st-cell-val" style="color:var(--err)">'+stats.min+'</div><div class="st-cell-lab">最低分</div></div>';
-  h+='</div></div>';
+  h+='</div>';
+  h+='<div style="margin-top:10px;font-size:12px;color:var(--text2);text-align:center">已练习 <b style="color:var(--accent)">'+stats.practicedCount+'</b> / <b>'+stats.totalKnowledge+'</b> 个知识点（'+Math.round(stats.practicedCount/stats.totalKnowledge*100)+'%）</div>';
+  h+='</div>';
+  if(stats.maxBinCount>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128202; 分数分布</div>';
+    for(var i=0;i<stats.distribution.length;i++){
+      var d=stats.distribution[i];
+      var pct=stats.maxBinCount>0?Math.round(d.count/stats.maxBinCount*100):0;
+      h+='<div class="st-dist-row">';
+      h+='<span class="st-dist-label">'+d.label+'</span>';
+      h+='<div class="st-dist-bar-wrap"><div class="st-dist-bar" style="width:'+pct+'%;background:'+d.color+'"></div></div>';
+      h+='<span class="st-dist-count">'+d.count+'</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  if(stats.practicedCount>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#127919; 掌握程度</div>';
+    for(var i=0;i<stats.mastery.length;i++){
+      var m=stats.mastery[i];
+      var pct=stats.practicedCount>0?Math.round(m.count/stats.practicedCount*100):0;
+      h+='<div class="st-mastery-row">';
+      h+='<span class="st-mastery-label">'+m.label+'</span>';
+      h+='<div class="st-mastery-bar-wrap"><div class="st-mastery-bar" style="width:'+(pct||1)+'%;background:'+m.color+'">'+(pct>15?pct+'%':'')+'</div></div>';
+      h+='<span class="st-mastery-count">'+m.count+'题</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  if(stats.categories.length>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#11088; 分类分析</div>';
+    for(var i=0;i<stats.categories.length;i++){
+      var c=stats.categories[i];
+      var tagCls=c.name==='五星'?'t5':c.name==='四星'?'t4':'t3';
+      var barCls=c.avg>=80?'':c.avg>=60?'mid':'low';
+      h+='<div class="st-cat-row">';
+      h+='<span class="st-cat-tag '+tagCls+'">'+c.name+'</span>';
+      h+='<div class="st-cat-bar-wrap"><div class="st-cat-bar '+barCls+'" style="width:'+c.avg+'%"></div></div>';
+      h+='<span class="st-cat-pct" style="color:'+(c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)')+'">'+c.avg+'%</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
   if(stats.chapters.length>0){
     h+='<div class="st-card">';
     h+='<div class="st-title">&#128218; 章节正确率排名</div>';
@@ -521,24 +661,41 @@ function renderStats(){
     }
     h+='</div>';
   }
-  if(stats.weeks.length>0){
+  if(stats.days.length>0){
     h+='<div class="st-card">';
-    h+='<div class="st-title">&#128197; 每周趋势</div>';
-    var maxWeekAvg=0;
-    for(var i=0;i<stats.weeks.length;i++)maxWeekAvg=Math.max(maxWeekAvg,stats.weeks[i].avg);
-    if(maxWeekAvg<1)maxWeekAvg=100;
-    h+='<div class="st-week-wrap">';
-    for(var i=0;i<stats.weeks.length;i++){
-      var w=stats.weeks[i];
-      var barH=Math.round(w.avg/maxWeekAvg*80);
+    h+='<div class="st-title">&#128200; 每日趋势（近14天）</div>';
+    var maxDayAvg=0;
+    for(var i=0;i<stats.days.length;i++)maxDayAvg=Math.max(maxDayAvg,stats.days[i].avg);
+    if(maxDayAvg<1)maxDayAvg=100;
+    h+='<div class="st-day-wrap">';
+    for(var i=0;i<stats.days.length;i++){
+      var w=stats.days[i];
+      var barH=Math.round((w.avg||0)/maxDayAvg*70);
       var barCls=w.avg>=80?'':w.avg>=60?'mid':'low';
-      h+='<div class="st-week-col">';
-      h+='<div class="st-week-bar '+barCls+'" style="height:'+barH+'px"></div>';
-      h+='<span class="st-week-lab">'+w.label.replace('年第','<br>第')+'</span>';
-      h+='<span class="st-week-lab" style="font-weight:700">'+w.avg+'%</span>';
+      h+='<div class="st-day-col">';
+      h+='<div class="st-day-bar '+barCls+'" style="height:'+(barH||2)+'px"></div>';
+      h+='<span class="st-day-count">'+(w.total>0?w.total:'')+'</span>';
+      h+='<span class="st-day-lab">'+w.label+'</span>';
       h+='</div>';
     }
     h+='</div></div>';
+  }
+  if(stats.recent.length>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128338; 最近默写记录</div>';
+    for(var i=0;i<stats.recent.length;i++){
+      var r=stats.recent[i];
+      var scoreCls=r.score>=80?'var(--accent)':r.score>=60?'var(--warn)':'var(--err)';
+      h+='<div class="st-rec-item">';
+      h+='<span class="st-rec-score" style="color:'+scoreCls+'">'+r.score+'分</span>';
+      h+='<div class="st-rec-info">';
+      h+='<div class="st-rec-title">'+esc(r.title)+'</div>';
+      h+='<div class="st-rec-meta">'+esc(r.chapter)+'</div>';
+      h+='</div>';
+      h+='<span class="st-rec-time">'+formatRelativeTime(r.time)+'</span>';
+      h+='</div>';
+    }
+    h+='</div>';
   }
   card.innerHTML=h;
 }
