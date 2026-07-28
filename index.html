@@ -134,7 +134,8 @@ textarea.ef{min-height:80px}
 .st-mastery-count{font-weight:700;flex-shrink:0}
 .st-cat-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
 .st-cat-bar-wrap{flex:1;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden}
-.st-cat-bar{height:100%;border-radius:4px;transition:width .5s}
+.st-cat-bar{height:100%;border-radius:4px;transition:width .5s;background:var(--accent)}
+.st-cat-bar.mid{background:var(--warn)}.st-cat-bar.low{background:var(--err)}
 .st-cat-pct{width:42px;text-align:right;font-weight:700;flex-shrink:0}
 .st-day-wrap{display:flex;align-items:flex-end;gap:3px;height:80px;padding:6px 0}
 .st-day-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
@@ -178,7 +179,7 @@ textarea.ef{min-height:80px}
   <div class="export-menu-item" onclick="exportExcel()">Excel 格式</div>
 </div>
 <script>
-var DATA_VERSION='v19';
+var DATA_VERSION='v20';
 (function(){
   var s=document.createElement('script');
   s.src='data.js?v='+DATA_VERSION+'&t='+Date.now();
@@ -499,7 +500,7 @@ function formatRelativeTime(ts){
 function getWeekNumber(d){var date=new Date(d);date.setHours(0,0,0,0);date.setDate(date.getDate()+3-(date.getDay()+6)%7);var year=date.getFullYear();var jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);var dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1;if(dayNr<1){year--;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}else if(dayNr>366||(dayNr>365&&((year%4!==0)||(year%100===0&&year%400!==0)))){year++;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}return year+'-W'+String(Math.ceil(dayNr/7)).padStart(2,'0')}
 function formatWeekLabel(weekKey){var parts=weekKey.split('-W');return parts[0]+'年第'+parts[1]+'周'}
 function calcStats(){
-  var entries=Object.keys(dictState).map(function(k){var d=dictState[k];d._id=k;return d}).filter(function(d){return d.checked&&d.score!==null});
+  var entries=Object.keys(dictState).map(function(k){var d=dictState[k];return{checked:d.checked,score:d.score,lastCheckTime:d.lastCheckTime,_id:k}}).filter(function(d){return d.checked&&d.score!==null});
   if(entries.length===0)return null;
   var total=entries.length,sum=0,maxS=0,minS=100;
   var today=new Date();today.setHours(0,0,0,0);var todayTs=today.getTime();
@@ -531,7 +532,7 @@ function calcStats(){
   }
   var catMap={};
   for(var i=0;i<entries.length;i++){
-    var item=allData.find(function(a){return a.id===entries[i]._id});
+    var item=allData.find(function(a){return String(a.id)===entries[i]._id});
     var cat=item?item.category:'未知';
     if(!catMap[cat])catMap[cat]={scores:[],total:0,sum:0};
     catMap[cat].scores.push(entries[i].score);catMap[cat].total++;catMap[cat].sum+=entries[i].score;
@@ -540,7 +541,7 @@ function calcStats(){
   var chMap={};
   for(var i=0;i<entries.length;i++){
     var e=entries[i];
-    var item=allData.find(function(a){return a.id===e._id});
+    var item=allData.find(function(a){return String(a.id)===e._id});
     var ch=item?item.chapter:'未知章节';
     if(!chMap[ch])chMap[ch]={scores:[],total:0,sum:0};
     chMap[ch].scores.push(e.score);chMap[ch].total++;chMap[ch].sum+=e.score;
@@ -563,7 +564,7 @@ function calcStats(){
   var dayList=dayKeys.map(function(k){return{date:k,label:dayMap[k].label,avg:dayMap[k].total>0?Math.round(dayMap[k].sum/dayMap[k].total):0,total:dayMap[k].total}});
   var sorted=[].concat(entries).sort(function(a,b){return (b.lastCheckTime||0)-(a.lastCheckTime||0)});
   var recent=sorted.slice(0,15).map(function(e){
-    var item=allData.find(function(a){return a.id===e._id});
+    var item=allData.find(function(a){return String(a.id)===e._id});
     return{title:item?item.title:'未知',chapter:item?item.chapter:'未知',score:e.score,time:e.lastCheckTime||0};
   });
   return{total:total,avg:avg,max:maxS,min:minS,todayCount:todayCount,todayAvg:todayAvg,todayMax:todayMax,distribution:bins,maxBinCount:maxBinCount,mastery:masteryLevels,practicedCount:practicedIds.length,totalKnowledge:allData.length,categories:catList,chapters:chList,days:dayList,recent:recent};
@@ -634,7 +635,7 @@ function renderStats(){
       var tagCls=c.name==='五星'?'t5':c.name==='四星'?'t4':'t3';
       var barCls=c.avg>=80?'':c.avg>=60?'mid':'low';
       h+='<div class="st-cat-row">';
-      h+='<span class="st-cat-tag '+tagCls+'">'+c.name+'</span>';
+      h+='<span class="tag '+tagCls+'">'+c.name+'</span>';
       h+='<div class="st-cat-bar-wrap"><div class="st-cat-bar '+barCls+'" style="width:'+c.avg+'%"></div></div>';
       h+='<span class="st-cat-pct" style="color:'+(c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)')+'">'+c.avg+'%</span>';
       h+='</div>';
