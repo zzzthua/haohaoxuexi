@@ -179,7 +179,7 @@ textarea.ef{min-height:80px}
   <div class="export-menu-item" onclick="exportExcel()">Excel 格式</div>
 </div>
 <script>
-var DATA_VERSION='v23';
+var DATA_VERSION='v24';
 (function(){
   var s=document.createElement('script');
   s.src='data.js?v='+DATA_VERSION+'&t='+Date.now();
@@ -455,31 +455,61 @@ function cloudSync(){
   if(!tk){showTokenDialog();return}
   var btn=document.getElementById('syncBtn');
   if(btn.disabled)return;
-  btn.disabled=true;btn.textContent='同步中...';btn.style.opacity='0.6';
+  btn.disabled=true;btn.textContent='拉取数据...';btn.style.opacity='0.6';
   _syncSha=null;_cloudData=null;
+  var s1Done=false,s2Done=false,s1Ok=false,s2Ok=false;
   var xhr1=new XMLHttpRequest();
-  xhr1.open('GET','https://api.github.com/repos/'+SYNC_REPO+'/contents/data.js');
-  xhr1.setRequestHeader('Authorization','Bearer '+tk);
-  xhr1.setRequestHeader('Accept','application/vnd.github.v3+json');
-  xhr1.timeout=20000;
+  xhr1.open('GET','https://raw.githubusercontent.com/'+SYNC_REPO+'/main/data.js?t='+Date.now());
+  xhr1.timeout=12000;
   xhr1.onload=function(){
     if(xhr1.status===200){
-      try{
-        var info=JSON.parse(xhr1.responseText);
-        _syncSha=info.sha;
-        var code=decodeURIComponent(escape(atob(info.content)));
-        var s=code.indexOf('{'),e=code.lastIndexOf('}')+1;
-        _cloudData=JSON.parse(code.slice(s,e));
-      }catch(err){}
+      try{var code=xhr1.responseText;var s=code.indexOf('{'),e=code.lastIndexOf('}')+1;_cloudData=JSON.parse(code.slice(s,e));s1Ok=true}catch(err){}
     }
-    doSyncPush(tk);
+    s1Done=true;checkBoth();
   };
-  xhr1.onerror=function(){doSyncPush(tk)};
-  xhr1.ontimeout=function(){
-    btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';
-    toast('同步超时，请重试');
-  };
+  xhr1.onerror=function(){s1Done=true;checkBoth()};
+  xhr1.ontimeout=function(){s1Done=true;checkBoth()};
   xhr1.send();
+  var xhr2=new XMLHttpRequest();
+  xhr2.open('GET','https://api.github.com/repos/'+SYNC_REPO+'/git/trees/main');
+  xhr2.setRequestHeader('Authorization','Bearer '+tk);
+  xhr2.setRequestHeader('Accept','application/vnd.github.v3+json');
+  xhr2.timeout=12000;
+  xhr2.onload=function(){
+    if(xhr2.status===200){
+      try{var tree=JSON.parse(xhr2.responseText);for(var i=0;i<tree.tree.length;i++){if(tree.tree[i].path==='data.js'){_syncSha=tree.tree[i].sha;s2Ok=true;break}}}catch(err){}
+    }
+    s2Done=true;checkBoth();
+  };
+  xhr2.onerror=function(){s2Done=true;checkBoth()};
+  xhr2.ontimeout=function(){s2Done=true;checkBoth()};
+  xhr2.send();
+  function checkBoth(){
+    if(!s1Done||!s2Done)return;
+    if(s1Ok&&s2Ok){doSyncMerge(tk);return}
+    fallbackAPI(tk);
+  }
+  function fallbackAPI(tk){
+    var btn2=document.getElementById('syncBtn');
+    btn2.textContent='拉取数据...';
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET','https://api.github.com/repos/'+SYNC_REPO+'/contents/data.js');
+    xhr.setRequestHeader('Authorization','Bearer '+tk);
+    xhr.setRequestHeader('Accept','application/vnd.github.v3+json');
+    xhr.timeout=20000;
+    xhr.onload=function(){
+      if(xhr.status===200){
+        try{var info=JSON.parse(xhr.responseText);_syncSha=info.sha;var code=decodeURIComponent(escape(atob(info.content)));var s=code.indexOf('{'),e=code.lastIndexOf('}')+1;_cloudData=JSON.parse(code.slice(s,e))}catch(err){}
+      }
+      doSyncMerge(tk);
+    };
+    xhr.onerror=function(){doSyncMerge(tk)};
+    xhr.ontimeout=function(){
+      btn2.disabled=false;btn2.textContent='同步';btn2.style.opacity='1';
+      toast('同步超时，请重试');
+    };
+    xhr.send();
+  }
 }
 function mergeKnowledge(local,cloud){
   if(!cloud||!cloud.knowledge)return local;
@@ -503,7 +533,9 @@ function mergeKnowledge(local,cloud){
   var chapters=(cloud.knowledge.length>=local.knowledge.length)?(cloud.chapters||[]):(local.chapters||[]);
   return{chapters:chapters,knowledge:merged,dict:cloud.dict||{}};
 }
-function doSyncPush(tk){
+function doSyncMerge(tk){
+  var btn=document.getElementById('syncBtn');
+  btn.textContent='合并数据...';
   var mergedData=mergeKnowledge({chapters:chapters,knowledge:allData,dict:slimDict(dictState)},_cloudData);
   if(_cloudData&&_cloudData.knowledge&&_cloudData.knowledge.length>allData.length){
     allData=mergedData.knowledge;
@@ -512,8 +544,16 @@ function doSyncPush(tk){
     save();
     populateChSel();render();
   }
-  var json=JSON.stringify({chapters:mergedData.chapters,knowledge:mergedData.knowledge,dict:slimDict(dictState)});
-  var code='var INIT_DATA='+json+';';
+  var newDict=slimDict(dictState);
+  var newJson=JSON.stringify({chapters:mergedData.chapters,knowledge:mergedData.knowledge,dict:newDict});
+  var cloudJson=_cloudData?JSON.stringify({chapters:_cloudData.chapters,knowledge:_cloudData.knowledge,dict:_cloudData.dict||{}}):'';
+  if(cloudJson&&cloudJson===newJson&&_syncSha){
+    btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';
+    toast('数据已是最新 ('+allData.length+'条)');
+    return;
+  }
+  btn.textContent='上传数据...';
+  var code='var INIT_DATA='+newJson+';';
   var payload={message:'Sync data via app - '+new Date().toLocaleString('zh-CN'),content:btoa(unescape(encodeURIComponent(code)))};
   if(_syncSha)payload.sha=_syncSha;
   var xhr2=new XMLHttpRequest();
@@ -522,7 +562,6 @@ function doSyncPush(tk){
   xhr2.setRequestHeader('Accept','application/vnd.github.v3+json');
   xhr2.timeout=30000;
   xhr2.onload=function(){
-    var btn=document.getElementById('syncBtn');
     btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';
     try{
       var res=JSON.parse(xhr2.responseText);
@@ -536,10 +575,10 @@ function doSyncPush(tk){
     }catch(e){toast('同步失败')}
   };
   xhr2.onerror=function(){
-    var btn=document.getElementById('syncBtn');btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';toast('同步失败，请检查网络');
+    btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';toast('同步失败，请检查网络');
   };
   xhr2.ontimeout=function(){
-    var btn=document.getElementById('syncBtn');btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';toast('同步超时，请重试');
+    btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';toast('同步超时，请重试');
   };
   xhr2.send(JSON.stringify(payload));
 }
