@@ -429,7 +429,7 @@ function exportWord(){closeExportMenu();var d=new Date();var ds=d.getFullYear()+
 function exportExcel(){closeExportMenu();var d=new Date();var rows=buildExportRows();var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>知识点</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table border="1"><tr style="background:#4caf50;color:#fff;font-weight:bold"><td>序号</td><td>标题</td><td>分类</td><td>章节</td><td>知识内容</td><td>记忆口诀</td><td>掌握程度</td></tr>'+rows+'</table></body></html>';var b=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='不是事_知识点_'+d.toISOString().slice(0,10)+'.xls';a.click();URL.revokeObjectURL(a.href);toast('Excel文件已导出')}
 var SYNC_REPO='zzzthua/haohaoxuexi';
 var _syncSha=null,_cloudData=null;
-var _tkP1='ghp_uw3Tr2ta';var _tkP2='kL8EDsBFUIvA';var _tkP3='1VpCqAxFw72i';var _tkP4='0ZPm';
+var _tkP1='ghp_snaND39z';var _tkP2='nslu4mnQQr';var _tkP3='kqyZzGVjDo4';var _tkP4='J3BSvqj';
 function getSyncToken(){
   var saved=localStorage.getItem('hxx_sync_token')||'';
   if(saved==='Qwer369988'||saved==='')return _tkP1+_tkP2+_tkP3+_tkP4;
