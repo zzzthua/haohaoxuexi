@@ -143,6 +143,20 @@ textarea.ef{min-height:80px}
 .st-day-bar.low{background:var(--err)}.st-day-bar.mid{background:var(--warn)}
 .st-day-lab{font-size:9px;color:var(--text2);white-space:nowrap}
 .st-day-count{font-size:9px;font-weight:700;color:var(--text2)}
+.qa-table{width:100%;font-size:12px;border-collapse:collapse;margin-top:6px}
+.qa-row{display:flex;align-items:center;padding:8px 4px;border-bottom:1px solid #f0f0f0;gap:8px}
+.qa-row:last-child{border-bottom:none}
+.qa-ch-name{flex:1;font-weight:600;color:var(--text);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.qa-ch-count{width:40px;text-align:center;font-weight:700;color:var(--accent);font-size:14px;flex-shrink:0}
+.qa-stars{display:flex;gap:6px;flex-shrink:0}
+.qa-star-tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;white-space:nowrap}
+.qa-star-s3{background:#f5f5f5;color:var(--text2)}
+.qa-star-s4{background:#e3f2fd;color:#1565c0}
+.qa-star-s5{background:#ffebee;color:var(--err)}
+.qa-summary{display:flex;gap:10px;justify-content:center;margin-top:8px}
+.qa-sum-item{text-align:center;padding:10px 14px;background:#f8f9fa;border-radius:8px;min-width:60px}
+.qa-sum-val{font-size:22px;font-weight:700}
+.qa-sum-lab{font-size:11px;color:var(--text2);margin-top:2px}
 </style>
 </head>
 <body>
@@ -159,6 +173,7 @@ textarea.ef{min-height:80px}
   <div class="mode-tab active" id="tab0" onclick="switchMode(0)">背诵模式</div>
   <div class="mode-tab" id="tab1" onclick="switchMode(1)">默写模式</div>
   <div class="mode-tab" id="tab2" onclick="switchMode(2)">统计分析</div>
+  <div class="mode-tab" id="tab3" onclick="switchMode(3)">题目分析</div>
 </div>
 <div class="progress-bar"><div class="progress-fill" id="pBar"></div></div>
 <div class="progress-text" id="pText">0 / 0</div>
@@ -319,14 +334,14 @@ function slimDict(d){
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
 function populateChSel(){var sel=document.getElementById('chSel');var opts=[];for(var i=0;i<sel.options.length;i++)opts.push(sel.options[i].value);chapters.forEach(function(c){if(opts.indexOf(c)===-1){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)}});sel.onchange=function(){filterCh(sel.value)}}
 function filterCh(c){filtered=c==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===c});idx=0;if(editing)toggleEdit();if(adding)toggleAdd();render()}
-function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);document.getElementById('tab2').classList.toggle('active',m===2);if(editing)toggleEdit();if(adding)toggleAdd();render()}
+function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);document.getElementById('tab2').classList.toggle('active',m===2);document.getElementById('tab3').classList.toggle('active',m===3);if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function progress(c,t){document.getElementById('pBar').style.width=(t>0?c/t*100:0)+'%';document.getElementById('pText').textContent=c+' / '+t}
 function getItem(){return filtered.length>0?filtered[idx]:null}
 function getDict(item){var d=dictState[item.id];if(!d)return{input:'',checked:false,score:null};return{input:d.input,checked:d.checked,score:d.score,lastCheckTime:d.lastCheckTime,correctItems:d.correctItems,userItems:d.userItems,matchedIndices:d.matchedIndices}}
 function ensureDict(item){if(!dictState[item.id])dictState[item.id]={input:'',checked:false,score:null};return dictState[item.id]}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function ea(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function render(){var card=document.getElementById('card');if(adding){renderAddForm();return}var item=getItem();if(!item&&mode!==2){card.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128218;</div><div>该章节暂无知识点</div></div>';progress(0,0);return}if(mode===2){renderStats();return}progress(idx+1,filtered.length);document.getElementById('swH').textContent=mode===1?'默写模式：先写答案再对照':'左右滑动切换题目';if(editing)renderEdit(item);else if(mode===0)renderRecite(item);else renderDictate(item)}
+function render(){var card=document.getElementById('card');if(adding){renderAddForm();return}var item=getItem();if(!item&&mode!==2&&mode!==3){card.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128218;</div><div>该章节暂无知识点</div></div>';progress(0,0);return}if(mode===2){renderStats();return}if(mode===3){renderQuestionAnalysis();return}progress(idx+1,filtered.length);document.getElementById('swH').textContent=mode===1?'默写模式：先写答案再对照':'左右滑动切换题目';if(editing)renderEdit(item);else if(mode===0)renderRecite(item);else renderDictate(item)}
 function renderRecite(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var h='<div class="tags">';h+='<span class="tag '+cc+'" onclick="toggleEdit()">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';h+='<button class="abtn'+(revealed?' rev':'')+'" onclick="toggleReveal()">'+(revealed?'收起答案':'查看答案')+'</button>';if(revealed){h+=formatAnswerList(item.content)}card.innerHTML=h}
 function toggleReveal(){revealed=!revealed;render()}
 function toggleMn(){mnRevealed=!mnRevealed;render()}
@@ -827,7 +842,70 @@ function renderStats(){
   }
   card.innerHTML=h;
 }
-document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowRight')nextCard();if(e.key==='ArrowLeft')prevCard();if(e.key==='Enter'){if(mode===1)checkDict();else if(mode===0)toggleReveal()}if(e.key==='e'||e.key==='E')toggleEdit();if(e.key==='r'||e.key==='R')randomCard();if(e.key==='Tab'){e.preventDefault();switchMode(mode===0?1:mode===1?2:0)}});
+function renderQuestionAnalysis(){
+  var card=document.getElementById('card');
+  document.getElementById('pBar').style.width='0%';
+  document.getElementById('pText').textContent='题目分析';
+  document.getElementById('swH').textContent='';
+  var valid=allData.filter(function(i){return i&&i.id});
+  var total=valid.length;
+  var starCounts={'三星':0,'四星':0,'五星':0};
+  valid.forEach(function(k){if(starCounts[k.category]!==undefined)starCounts[k.category]++});
+  var chMap={};
+  valid.forEach(function(k){var c=k.chapter||'未分类';if(!chMap[c])chMap[c]={'三星':0,'四星':0,'五星':0,total:0};if(chMap[c][k.category]!==undefined)chMap[c][k.category]++;chMap[c].total++});
+  var chList=Object.keys(chMap).map(function(c){return{name:c,total:chMap[c].total,s3:chMap[c]['三星'],s4:chMap[c]['四星'],s5:chMap[c]['五星']}});
+  chList.sort(function(a,b){return b.total-a.total});
+  var h='';
+  h+='<div class="st-card">';
+  h+='<div class="st-title">&#128218; 题目总览</div>';
+  h+='<div class="qa-summary">';
+  h+='<div class="qa-sum-item"><div class="qa-sum-val" style="color:var(--accent)">'+total+'</div><div class="qa-sum-lab">总题数</div></div>';
+  h+='<div class="qa-sum-item"><div class="qa-sum-val" style="color:var(--text2)">'+starCounts['三星']+'</div><div class="qa-sum-lab">三星</div></div>';
+  h+='<div class="qa-sum-item"><div class="qa-sum-val" style="color:#1565c0">'+starCounts['四星']+'</div><div class="qa-sum-lab">四星</div></div>';
+  h+='<div class="qa-sum-item"><div class="qa-sum-val" style="color:var(--err)">'+starCounts['五星']+'</div><div class="qa-sum-lab">五星</div></div>';
+  h+='</div></div>';
+  if(chList.length>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128200; 各章节题目分布</div>';
+    h+='<div class="qa-table">';
+    for(var i=0;i<chList.length;i++){
+      var c=chList[i];
+      h+='<div class="qa-row">';
+      h+='<span class="qa-ch-name">'+esc(c.name)+'</span>';
+      h+='<span class="qa-ch-count">'+c.total+'</span>';
+      h+='<div class="qa-stars">';
+      if(c.s3>0)h+='<span class="qa-star-tag qa-star-s3">三星 '+c.s3+'</span>';
+      if(c.s4>0)h+='<span class="qa-star-tag qa-star-s4">四星 '+c.s4+'</span>';
+      if(c.s5>0)h+='<span class="qa-star-tag qa-star-s5">五星 '+c.s5+'</span>';
+      h+='</div></div>';
+    }
+    h+='</div></div>';
+  }
+  if(total>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#11088; 星级占比</div>';
+    var maxStar=Math.max(starCounts['三星'],starCounts['四星'],starCounts['五星']);
+    var starData=[
+      {name:'三星',count:starCounts['三星'],color:'#9e9e9e'},
+      {name:'四星',count:starCounts['四星'],color:'#2196f3'},
+      {name:'五星',count:starCounts['五星'],color:'#f44336'}
+    ];
+    for(var i=0;i<starData.length;i++){
+      var s=starData[i];
+      var pct=total>0?Math.round(s.count/total*100):0;
+      var barW=maxStar>0?Math.round(s.count/maxStar*100):0;
+      h+='<div class="st-dist-row">';
+      h+='<span class="st-dist-label" style="color:'+s.color+'">'+s.name+'</span>';
+      h+='<div class="st-dist-bar-wrap"><div class="st-dist-bar" style="width:'+barW+'%;background:'+s.color+'"></div></div>';
+      h+='<span class="st-dist-count">'+s.count+'</span>';
+      h+='<span style="font-size:11px;color:var(--text2);width:36px;text-align:right">'+pct+'%</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  card.innerHTML=h;
+}
+document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowRight')nextCard();if(e.key==='ArrowLeft')prevCard();if(e.key==='Enter'){if(mode===1)checkDict();else if(mode===0)toggleReveal()}if(e.key==='e'||e.key==='E')toggleEdit();if(e.key==='r'||e.key==='R')randomCard();if(e.key==='Tab'){e.preventDefault();switchMode(mode===0?1:mode===1?2:mode===2?3:0)}});
 </script>
 </body>
 </html>
