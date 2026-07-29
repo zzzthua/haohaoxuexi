@@ -255,28 +255,31 @@ function init(){
     var s=localStorage.getItem('hxx_data');
     var localKnowledge=null;
     if(s){
-      var parsed=JSON.parse(s);
-      localKnowledge=parsed.knowledge||null;
+      try{var parsed=JSON.parse(s);localKnowledge=parsed.knowledge||null}catch(e){localKnowledge=null}
     }
-    var cloudKnowledge=INIT_DATA.knowledge||[];
+    var cloudKnowledge=(INIT_DATA.knowledge||[]).filter(function(i){return i&&i.id});
+    if(localKnowledge){
+      localKnowledge=localKnowledge.filter(function(i){return i&&i.id});
+    }
     if(localKnowledge&&localKnowledge.length>=cloudKnowledge.length){
       allData=localKnowledge;
     }else{
       allData=cloudKnowledge;
       if(localKnowledge){
         var localById={};
-        localKnowledge.forEach(function(k){localById[k.id]=k});
+        localKnowledge.forEach(function(k){if(k&&k.id)localById[k.id]=k});
         allData=allData.map(function(k){
+          if(!k||!k.id)return k;
           var lo=localById[k.id];
           if(lo&&(lo.status!=='未开始'||(lo.mnemonic&&lo.mnemonic.length>0)))return lo;
           return k;
-        });
+        }).filter(function(i){return i&&i.id});
       }
       save();
     }
     var localDict={};
     var ds=localStorage.getItem('hxx_dict');
-    if(ds)localDict=JSON.parse(ds);
+    if(ds){try{localDict=JSON.parse(ds)}catch(e){}}
     var cloudDict=INIT_DATA.dict||{};
     dictState=mergeDict(localDict,cloudDict);
     saveDict();
@@ -284,8 +287,10 @@ function init(){
     allData=INIT_DATA.knowledge;
     dictState=INIT_DATA.dict||{};
   }
+  allData=allData.filter(function(i){return i&&i.id});
   chapters=INIT_DATA.chapters;
   filtered=allData.slice();
+  save();
   populateChSel();render();setupSwipe();
 }
 function save(){try{localStorage.setItem('hxx_data',JSON.stringify({knowledge:allData}))}catch(e){toast('保存失败：'+e.message)}}
@@ -313,7 +318,7 @@ function slimDict(d){
 }
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
 function populateChSel(){var sel=document.getElementById('chSel');var opts=[];for(var i=0;i<sel.options.length;i++)opts.push(sel.options[i].value);chapters.forEach(function(c){if(opts.indexOf(c)===-1){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)}});sel.onchange=function(){filterCh(sel.value)}}
-function filterCh(c){filtered=c==='all'?allData.slice():allData.filter(function(i){return i.chapter===c});idx=0;if(editing)toggleEdit();if(adding)toggleAdd();render()}
+function filterCh(c){filtered=c==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===c});idx=0;if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);document.getElementById('tab2').classList.toggle('active',m===2);if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function progress(c,t){document.getElementById('pBar').style.width=(t>0?c/t*100:0)+'%';document.getElementById('pText').textContent=c+' / '+t}
 function getItem(){return filtered.length>0?filtered[idx]:null}
@@ -400,9 +405,9 @@ function toggleEdit(){editing=!editing;var b=document.getElementById('editBtn');
 function toggleAdd(){adding=!adding;if(adding&&editing)editing=false;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);render()}
 function renderAddForm(){var card=document.getElementById('card');var chOpts='';chapters.forEach(function(c){chOpts+='<option value="'+esc(c)+'">'+esc(c)+'</option>'});var h='<div class="tags"><span class="tag tmode" style="background:#e3f2fd;color:#1565c0">新增知识点</span></div>';h+='<div class="fld"><div class="fld-label">问题标题 *</div><input class="ef big" id="aTitle" placeholder="输入知识点问题"></div>';h+='<div class="fld"><div class="fld-label">所属章节 *</div><select class="ef" id="aChapter" style="appearance:auto">'+chOpts+'</select></div>';h+='<div class="fld"><div class="fld-label">星级分类 *</div><div class="star-sel"><div class="star-opt so3 on" data-cat="三星" onclick="setAddCat(this)">三星</div><div class="star-opt so4" data-cat="四星" onclick="setAddCat(this)">四星</div><div class="star-opt so5" data-cat="五星" onclick="setAddCat(this)">五星</div></div></div>';h+='<div class="fld"><div class="fld-label">答案内容 *</div><textarea class="ef" id="aContent" rows="4" placeholder="输入答案内容，多条可用 (1)xxx (2)xxx 格式"></textarea></div>';h+='<div class="fld"><div class="fld-label">记忆口诀（选填）</div><input class="ef mn" id="aMn" placeholder="输入助记口诀"></div>';h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="background:var(--accent);color:#fff;flex:2" onclick="saveNew()">&#10003; 添加</button><button class="btn" style="background:#f5f5f5;color:var(--text2);flex:1" onclick="toggleAdd()">取消</button></div>';document.getElementById('pBar').style.width='0%';document.getElementById('pText').textContent='新增模式';document.getElementById('swH').textContent='填写知识点信息后点击添加';card.innerHTML=h;document.getElementById('aTitle').focus()}
 function setAddCat(el){var cats=document.querySelectorAll('.star-sel .star-opt');for(var i=0;i<cats.length;i++){cats[i].classList.remove('on')}el.classList.add('on')}
-function saveNew(){var title=document.getElementById('aTitle').value.trim();var chapter=document.getElementById('aChapter').value;var content=document.getElementById('aContent').value.trim();var mnemonic=document.getElementById('aMn').value.trim();var catEl=document.querySelector('.star-sel .star-opt.on');var category=catEl?catEl.getAttribute('data-cat'):'三星';if(!title){toast('请输入问题标题');document.getElementById('aTitle').focus();return}if(!content){toast('请输入答案内容');document.getElementById('aContent').focus();return}var id='custom_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);var newItem={id:id,title:title,chapter:chapter,category:category,content:content,mnemonic:mnemonic};allData.unshift(newItem);save();filtered=allData.slice();var sel=document.getElementById('chSel');if(sel.value!=='all'){filtered=allData.filter(function(i){return i.chapter===sel.value})}idx=0;adding=false;render();toast('知识点已添加');populateChSel()}
+function saveNew(){var title=document.getElementById('aTitle').value.trim();var chapter=document.getElementById('aChapter').value;var content=document.getElementById('aContent').value.trim();var mnemonic=document.getElementById('aMn').value.trim();var catEl=document.querySelector('.star-sel .star-opt.on');var category=catEl?catEl.getAttribute('data-cat'):'三星';if(!title){toast('请输入问题标题');document.getElementById('aTitle').focus();return}if(!content){toast('请输入答案内容');document.getElementById('aContent').focus();return}var id='custom_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);var newItem={id:id,title:title,chapter:chapter,category:category,content:content,mnemonic:mnemonic};allData.unshift(newItem);save();filtered=allData.filter(function(i){return i});var sel=document.getElementById('chSel');if(sel.value!=='all'){filtered=allData.filter(function(i){return i&&i.chapter===sel.value})}idx=0;adding=false;render();toast('知识点已添加');populateChSel()}
 function setCat(c){document.getElementById('eCat').value=c;var opts=document.querySelectorAll('.star-opt');for(var i=0;i<opts.length;i++){opts[i].classList.toggle('on',opts[i].textContent===c)}}
-function deleteItem(){var item=getItem();if(!item)return;if(!confirm('确定要删除「'+item.title+'」吗？\n删除后无法恢复！'))return;var ai=allData.findIndex(function(a){return a.id===item.id});if(ai===-1)return;allData.splice(ai,1);delete dictState[item.id];save();saveDict();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.slice():allData.filter(function(i){return i.chapter===sel.value});if(filtered.length===0){filtered=allData.slice();sel.value='all'}if(idx>=filtered.length)idx=filtered.length-1;if(idx<0)idx=0;if(editing)toggleEdit();render();toast('知识点已删除')}function saveEdit(){var item=getItem();if(!item)return;item.title=document.getElementById('eTitle').value.trim();item.chapter=document.getElementById('eChapter').value;item.category=document.getElementById('eCat').value;item.content=document.getElementById('eContent').value.trim();item.mnemonic=document.getElementById('eMn').value.trim();var orig=allData.find(function(a){return a.id===item.id});if(orig){orig.title=item.title;orig.chapter=item.chapter;orig.category=item.category;orig.content=item.content;orig.mnemonic=item.mnemonic}save();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.slice():allData.filter(function(i){return i.chapter===sel.value});if(filtered.length===0){filtered=allData.slice();sel.value='all'}else{idx=filtered.indexOf(item);if(idx===-1)idx=0}toggleEdit();render();toast('修改已保存')}
+function deleteItem(){var item=getItem();if(!item)return;if(!confirm('确定要删除「'+item.title+'」吗？\n删除后无法恢复！'))return;var ai=allData.findIndex(function(a){return a&&a.id===item.id});if(ai===-1)return;allData.splice(ai,1);delete dictState[item.id];save();saveDict();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}if(idx>=filtered.length)idx=filtered.length-1;if(idx<0)idx=0;if(editing)toggleEdit();render();toast('知识点已删除')}function saveEdit(){var item=getItem();if(!item)return;item.title=document.getElementById('eTitle').value.trim();item.chapter=document.getElementById('eChapter').value;item.category=document.getElementById('eCat').value;item.content=document.getElementById('eContent').value.trim();item.mnemonic=document.getElementById('eMn').value.trim();var orig=allData.find(function(a){return a&&a.id===item.id});if(orig){orig.title=item.title;orig.chapter=item.chapter;orig.category=item.category;orig.content=item.content;orig.mnemonic=item.mnemonic}save();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}else{idx=filtered.indexOf(item);if(idx===-1)idx=0}toggleEdit();render();toast('修改已保存')}
 function moveCard(dir){
   var item=getItem();if(!item)return;
   var ai=allData.indexOf(item);if(ai===-1)return;
@@ -410,7 +415,7 @@ function moveCard(dir){
   if(ni<0||ni>=allData.length){toast('已在边界');return}
   var tmp=allData[ai];allData[ai]=allData[ni];allData[ni]=tmp;
   save();
-  filtered=cSelVal()==='all'?allData.slice():allData.filter(function(i){return i.chapter===cSelVal()});
+  filtered=cSelVal()==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===cSelVal()});
   var fi=filtered.indexOf(item);if(fi!==-1)idx=fi;
   render();toast(dir<0?'已上移':'已下移');
 }
@@ -514,9 +519,11 @@ function cloudSync(){
 function mergeKnowledge(local,cloud){
   if(!cloud||!cloud.knowledge)return local;
   if(!local||!local.knowledge)return cloud;
+  var ck=cloud.knowledge.filter(function(i){return i&&i.id});
+  var lk=local.knowledge.filter(function(i){return i&&i.id});
   var cloudById={},localById={};
-  cloud.knowledge.forEach(function(k){cloudById[k.id]=k});
-  local.knowledge.forEach(function(k){localById[k.id]=k});
+  ck.forEach(function(k){cloudById[k.id]=k});
+  lk.forEach(function(k){localById[k.id]=k});
   var allIds=Object.keys(cloudById).map(Number).concat(Object.keys(localById).map(Number).filter(function(id){return!cloudById[id]}));
   allIds.sort(function(a,b){return a-b});
   var merged=allIds.map(function(id){
@@ -530,13 +537,16 @@ function mergeKnowledge(local,cloud){
     if(cl.content&&cl.content.length>(lo.content?lo.content.length:0))return cl;
     return lo;
   });
-  var chapters=(cloud.knowledge.length>=local.knowledge.length)?(cloud.chapters||[]):(local.chapters||[]);
+  var chapters=(ck.length>=lk.length)?(cloud.chapters||[]):(local.chapters||[]);
   return{chapters:chapters,knowledge:merged,dict:cloud.dict||{}};
 }
 function doSyncMerge(tk){
   var btn=document.getElementById('syncBtn');
   btn.textContent='合并数据...';
-  var mergedData=mergeKnowledge({chapters:chapters,knowledge:allData,dict:slimDict(dictState)},_cloudData);
+  if(_cloudData&&_cloudData.knowledge){
+    _cloudData.knowledge=_cloudData.knowledge.filter(function(i){return i&&i.id});
+  }
+  var mergedData=mergeKnowledge({chapters:chapters,knowledge:allData.filter(function(i){return i&&i.id}),dict:slimDict(dictState)},_cloudData);
   var newDict=slimDict(dictState);
   var newJson=JSON.stringify({chapters:mergedData.chapters,knowledge:mergedData.knowledge,dict:newDict});
   var cloudJson=_cloudData?JSON.stringify({chapters:_cloudData.chapters,knowledge:_cloudData.knowledge,dict:_cloudData.dict||{}}):'';
@@ -545,11 +555,11 @@ function doSyncMerge(tk){
     toast('数据已是最新 ('+allData.length+'条)');
     return;
   }
-  allData=mergedData.knowledge;
+  allData=mergedData.knowledge.filter(function(i){return i&&i.id});
   chapters=mergedData.chapters;
   var sel=document.getElementById('chSel');
-  filtered=sel.value==='all'?allData.slice():allData.filter(function(i){return i.chapter===sel.value});
-  if(filtered.length===0){filtered=allData.slice();sel.value='all'}
+  filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});
+  if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}
   idx=0;
   save();
   populateChSel();render();
