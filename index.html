@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>好好学习 - 知识卡片</title>
+<title>不是事</title>
 <link rel="preload" href="data.js" as="script">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -115,11 +115,73 @@ textarea.ef{min-height:80px}
 .export-menu-item{padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text)}
 .export-menu-item:last-child{border-bottom:none}
 .export-menu-item:active{background:#f0f0f0}
+.st-dist-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:12px}
+.st-dist-label{width:50px;text-align:right;font-weight:600;color:var(--text2);flex-shrink:0}
+.st-dist-bar-wrap{flex:1;height:14px;background:#f0f0f0;border-radius:7px;overflow:hidden}
+.st-dist-bar{height:100%;border-radius:7px;transition:width .5s;min-width:2px}
+.st-dist-count{width:24px;text-align:right;font-weight:700;font-size:11px;flex-shrink:0}
+.st-rec-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+.st-rec-item:last-child{border-bottom:none}
+.st-rec-score{font-weight:700;font-size:14px;min-width:36px;text-align:center;flex-shrink:0}
+.st-rec-info{flex:1;min-width:0}
+.st-rec-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-rec-meta{font-size:11px;color:var(--text2)}
+.st-rec-time{font-size:10px;color:#bbb;white-space:nowrap;flex-shrink:0}
+.st-mastery-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px}
+.st-mastery-label{width:80px;font-weight:600;text-align:right;font-size:11px;flex-shrink:0}
+.st-mastery-bar-wrap{flex:1;height:18px;background:#f0f0f0;border-radius:9px;overflow:hidden}
+.st-mastery-bar{height:100%;border-radius:9px;transition:width .5s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;font-weight:700;color:#fff;min-width:2px;white-space:nowrap}
+.st-mastery-count{font-weight:700;flex-shrink:0}
+.st-cat-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
+.st-cat-bar-wrap{flex:1;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden}
+.st-cat-bar{height:100%;border-radius:4px;transition:width .5s;background:var(--accent)}
+.st-cat-bar.mid{background:var(--warn)}.st-cat-bar.low{background:var(--err)}
+.st-cat-pct{width:42px;text-align:right;font-weight:700;flex-shrink:0}
+.st-day-wrap{display:flex;align-items:flex-end;gap:3px;height:80px;padding:6px 0}
+.st-day-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.st-day-bar{width:100%;border-radius:2px 2px 0 0;background:var(--accent);min-height:2px;transition:height .4s}
+.st-day-bar.low{background:var(--err)}.st-day-bar.mid{background:var(--warn)}
+.st-day-lab{font-size:9px;color:var(--text2);white-space:nowrap}
+.st-day-count{font-size:9px;font-weight:700;color:var(--text2)}
+.qa-table{width:100%;font-size:12px;border-collapse:collapse;margin-top:6px}
+.qa-row{display:flex;align-items:center;padding:8px 4px;border-bottom:1px solid #f0f0f0;gap:8px}
+.qa-row:last-child{border-bottom:none}
+.qa-ch-name{flex:1;font-weight:600;color:var(--text);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.qa-ch-count{width:40px;text-align:center;font-weight:700;color:var(--accent);font-size:14px;flex-shrink:0}
+.qa-stars{display:flex;gap:6px;flex-shrink:0}
+.qa-star-tag{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;white-space:nowrap}
+.qa-star-s3{background:#f5f5f5;color:var(--text2)}
+.qa-star-s4{background:#e3f2fd;color:#1565c0}
+.qa-star-s5{background:#ffebee;color:var(--err)}
+.qa-summary{display:flex;gap:10px;justify-content:center;margin-top:8px}
+.qa-sum-item{text-align:center;padding:10px 14px;background:#f8f9fa;border-radius:8px;min-width:60px}
+.qa-sum-val{font-size:22px;font-weight:700}
+.qa-sum-lab{font-size:11px;color:var(--text2);margin-top:2px}
+.cp-card{background:var(--card);border-radius:var(--rl);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.cp-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+.cp-row:last-child{border-bottom:none}
+.cp-ch-name{flex:1;font-weight:600;color:var(--text);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.cp-progress{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.cp-num{font-weight:700;font-size:13px;min-width:24px;text-align:center}
+.cp-practiced{color:var(--accent)}
+.cp-unpracticed{color:var(--text2)}
+.cp-times{color:#1565c0;font-size:11px}
+.cp-avg{width:42px;text-align:right;font-weight:700;flex-shrink:0;font-size:13px}
+.cp-bar-wrap{width:60px;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;flex-shrink:0}
+.cp-bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s}
+.cp-toggle{font-size:10px;color:var(--text2);width:14px;text-align:center;flex-shrink:0;cursor:pointer;transition:transform .2s}
+.cp-detail{background:#f8f9fa;border-radius:8px;margin:0 0 6px 0;padding:6px 8px}
+.cp-detail-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #eee;font-size:12px}
+.cp-detail-row:last-child{border-bottom:none}
+.cp-detail-title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.cp-detail-count{font-size:11px;color:var(--text2);font-weight:600;flex-shrink:0;white-space:nowrap}
+.cp-detail-score{font-size:13px;font-weight:700;flex-shrink:0;width:40px;text-align:right}
+.cp-detail-time{font-size:10px;color:#bbb;flex-shrink:0;white-space:nowrap}
 </style>
 </head>
 <body>
 <div class="header">
-  <div class="header-left"><div class="header-title">好好学习</div></div>
+  <div class="header-left"><div class="header-title">不是事</div></div>
   <div class="header-right">
     <select class="hselect" id="chSel"><option value="all">全部章节</option></select>
     <button class="hbtn" onclick="toggleAdd()" style="color:var(--accent);font-size:16px;line-height:1">+</button>
@@ -131,6 +193,7 @@ textarea.ef{min-height:80px}
   <div class="mode-tab active" id="tab0" onclick="switchMode(0)">背诵模式</div>
   <div class="mode-tab" id="tab1" onclick="switchMode(1)">默写模式</div>
   <div class="mode-tab" id="tab2" onclick="switchMode(2)">统计分析</div>
+  <div class="mode-tab" id="tab3" onclick="switchMode(3)">题目分析</div>
 </div>
 <div class="progress-bar"><div class="progress-fill" id="pBar"></div></div>
 <div class="progress-text" id="pText">0 / 0</div>
@@ -151,7 +214,7 @@ textarea.ef{min-height:80px}
   <div class="export-menu-item" onclick="exportExcel()">Excel 格式</div>
 </div>
 <script>
-var DATA_VERSION='v13';
+var DATA_VERSION='v24';
 (function(){
   var s=document.createElement('script');
   s.src='data.js?v='+DATA_VERSION+'&t='+Date.now();
@@ -160,6 +223,15 @@ var DATA_VERSION='v13';
   s.onload=function(){
     loaded=true;
     if(typeof INIT_DATA!=='undefined'&&INIT_DATA&&INIT_DATA.knowledge){
+      var localData=localStorage.getItem('hxx_data');
+      if(localData){
+        try{
+          var parsed=JSON.parse(localData);
+          if(parsed&&parsed.knowledge&&parsed.knowledge.length>INIT_DATA.knowledge.length){
+            window.INIT_DATA={knowledge:parsed.knowledge,chapters:extractChapters(parsed.knowledge)};
+          }
+        }catch(e){}
+      }
       init();
     }else{
       tryFallback('数据格式错误');
@@ -216,15 +288,33 @@ function init(){
       localStorage.setItem('hxx_ver',DATA_VERSION);
     }
     var s=localStorage.getItem('hxx_data');
+    var localKnowledge=null;
     if(s){
-      var parsed=JSON.parse(s);
-      allData=parsed.knowledge||INIT_DATA.knowledge;
+      try{var parsed=JSON.parse(s);localKnowledge=parsed.knowledge||null}catch(e){localKnowledge=null}
+    }
+    var cloudKnowledge=(INIT_DATA.knowledge||[]).filter(function(i){return i&&i.id});
+    if(localKnowledge){
+      localKnowledge=localKnowledge.filter(function(i){return i&&i.id});
+    }
+    if(localKnowledge&&localKnowledge.length>=cloudKnowledge.length){
+      allData=localKnowledge;
     }else{
-      allData=INIT_DATA.knowledge;
+      allData=cloudKnowledge;
+      if(localKnowledge){
+        var localById={};
+        localKnowledge.forEach(function(k){if(k&&k.id)localById[k.id]=k});
+        allData=allData.map(function(k){
+          if(!k||!k.id)return k;
+          var lo=localById[k.id];
+          if(lo&&(lo.status!=='未开始'||(lo.mnemonic&&lo.mnemonic.length>0)))return lo;
+          return k;
+        }).filter(function(i){return i&&i.id});
+      }
+      save();
     }
     var localDict={};
     var ds=localStorage.getItem('hxx_dict');
-    if(ds)localDict=JSON.parse(ds);
+    if(ds){try{localDict=JSON.parse(ds)}catch(e){}}
     var cloudDict=INIT_DATA.dict||{};
     dictState=mergeDict(localDict,cloudDict);
     saveDict();
@@ -232,8 +322,10 @@ function init(){
     allData=INIT_DATA.knowledge;
     dictState=INIT_DATA.dict||{};
   }
+  allData=allData.filter(function(i){return i&&i.id});
   chapters=INIT_DATA.chapters;
   filtered=allData.slice();
+  save();
   populateChSel();render();setupSwipe();
 }
 function save(){try{localStorage.setItem('hxx_data',JSON.stringify({knowledge:allData}))}catch(e){toast('保存失败：'+e.message)}}
@@ -261,18 +353,19 @@ function slimDict(d){
 }
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
 function populateChSel(){var sel=document.getElementById('chSel');var opts=[];for(var i=0;i<sel.options.length;i++)opts.push(sel.options[i].value);chapters.forEach(function(c){if(opts.indexOf(c)===-1){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)}});sel.onchange=function(){filterCh(sel.value)}}
-function filterCh(c){filtered=c==='all'?allData.slice():allData.filter(function(i){return i.chapter===c});idx=0;if(editing)toggleEdit();if(adding)toggleAdd();render()}
-function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);document.getElementById('tab2').classList.toggle('active',m===2);if(editing)toggleEdit();if(adding)toggleAdd();render()}
+function filterCh(c){filtered=c==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===c});idx=0;if(editing)toggleEdit();if(adding)toggleAdd();render()}
+function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);document.getElementById('tab2').classList.toggle('active',m===2);document.getElementById('tab3').classList.toggle('active',m===3);if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function progress(c,t){document.getElementById('pBar').style.width=(t>0?c/t*100:0)+'%';document.getElementById('pText').textContent=c+' / '+t}
 function getItem(){return filtered.length>0?filtered[idx]:null}
 function getDict(item){var d=dictState[item.id];if(!d)return{input:'',checked:false,score:null};return{input:d.input,checked:d.checked,score:d.score,lastCheckTime:d.lastCheckTime,correctItems:d.correctItems,userItems:d.userItems,matchedIndices:d.matchedIndices}}
 function ensureDict(item){if(!dictState[item.id])dictState[item.id]={input:'',checked:false,score:null};return dictState[item.id]}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function ea(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function render(){var card=document.getElementById('card');if(adding){renderAddForm();return}var item=getItem();if(!item&&mode!==2){card.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128218;</div><div>该章节暂无知识点</div></div>';progress(0,0);return}if(mode===2){renderStats();return}progress(idx+1,filtered.length);document.getElementById('swH').textContent=mode===1?'默写模式：先写答案再对照':'左右滑动切换题目';if(editing)renderEdit(item);else if(mode===0)renderRecite(item);else renderDictate(item)}
+function render(){var card=document.getElementById('card');if(adding){renderAddForm();return}var item=getItem();if(!item&&mode!==2&&mode!==3){card.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128218;</div><div>该章节暂无知识点</div></div>';progress(0,0);return}if(mode===2){renderStats();return}if(mode===3){renderQuestionAnalysis();return}progress(idx+1,filtered.length);document.getElementById('swH').textContent=mode===1?'默写模式：先写答案再对照':'左右滑动切换题目';if(editing)renderEdit(item);else if(mode===0)renderRecite(item);else renderDictate(item)}
 function renderRecite(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var h='<div class="tags">';h+='<span class="tag '+cc+'" onclick="toggleEdit()">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';h+='<button class="abtn'+(revealed?' rev':'')+'" onclick="toggleReveal()">'+(revealed?'收起答案':'查看答案')+'</button>';if(revealed){h+=formatAnswerList(item.content)}card.innerHTML=h}
 function toggleReveal(){revealed=!revealed;render()}
 function toggleMn(){mnRevealed=!mnRevealed;render()}
+function toggleChDetail(i){var d=document.getElementById('cpDetail'+i);var t=document.getElementById('cpToggle'+i);if(!d)return;var open=d.style.display!=='none';d.style.display=open?'none':'block';if(t)t.innerHTML=open?'&#9654;':'&#9660;'}
 function formatAnswerList(content){
   if(!content)return '<div style="color:#bbb;font-size:17px">暂无答案</div>';
   var normalized=content.replace(/（(\d+)）/g,'($1)').replace(/(\d+)[、.]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});
@@ -281,6 +374,8 @@ function formatAnswerList(content){
     var h='<div class="ans-list">';
     for(var i=0;i<matches.length;i++){
       var item=matches[i].replace(/^\(\d+\)/,'').trim();
+      item=item.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();
+      item=item.replace(/[。.,,；;！!？?：:、]+$/,'').trim();
       if(item)h+='<div class="ans-item"><span class="ans-num">'+(i+1)+'.</span><span>'+esc(item)+'</span></div>';
     }
     h+='</div>';
@@ -291,27 +386,93 @@ function formatAnswerList(content){
 function renderDictate(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var ds=ensureDict(item);var h='<div class="tags">';h+='<span class="tag '+cc+'">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';if(!ds.checked){h+='<div class="fld"><div class="fld-label">你的默写答案</div>';h+='<textarea class="dict-area" id="dictInput" placeholder="在此默写答案..." oninput="onDictInput()">'+esc(ds.input)+'</textarea></div>';h+='<button class="abtn check" onclick="checkDict()">提交校核</button>'}else{h+=renderCheckResult(item,ds)}card.innerHTML=h;var ta=document.getElementById('dictInput');if(ta){ta.focus();ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}}
 function onDictInput(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=ensureDict(item);ds.input=ta.value;ds.checked=false;ds.score=null;saveDict()}
 function normalizeText(t){t=t.replace(/[\s\n\r\t]+/g,'');t=t.replace(/\uff08/g,'(').replace(/\uff09/g,')');t=t.replace(/\uff0c/g,',').replace(/\u3002/g,'.').replace(/\u3001/g,',');t=t.replace(/\uff1b/g,';').replace(/\uff1a/g,':').replace(/\uff01/g,'!').replace(/\uff1f/g,'?');t=t.replace(/\u201c/g,'"').replace(/\u201d/g,'"');t=t.replace(/\u2018/g,"'" ).replace(/\u2019/g,"'" );t=t.replace(/\u3010/g,'[').replace(/\u3011/g,']');t=t.replace(/\u300a/g,'').replace(/\u300b/g,'');return t.toLowerCase()}
-function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=ensureDict(item);ds.input=ta?ta.value:'';ds.checked=true;ds.lastCheckTime=Date.now();var correct=normalizeText(item.content||'');var user=normalizeText(ds.input);function extractItems(text){if(!text)return[];var n=text.replace(/[\(（](\d+)[\)）]/g,'($1)').replace(/(\d+)[,.。、]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0}).map(function(x){var s=x.replace(/^\(\d+\)/,'').trim();return s.replace(/[。.,,；;！!？?：:、]+$/,'')})}var s=text.split(/[,.。、]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s.map(function(x){var t=x.trim();return t.replace(/[。.,,；;！!？?：:、]+$/,'')});return [text.trim().replace(/[。.,,；;！!？?：:、]+$/,'')]}var correctItems=extractItems(correct);var userItems=extractItems(user);var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=normalizeText(userItems[j].replace(/^\(\d+\)/,''));if(cn===un||(cn.length>2&&un.indexOf(cn)!==-1)||(un.length>2&&cn.indexOf(un)!==-1)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(user===correct?100:0);ds.score=score;ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;saveDict();render();toast('校核完成：'+score+'分')}
-function renderCheckResult(item,ds){var h='<div class="check-result">';var cls=ds.score>=80?'perfect':ds.score>=40?'partial':'miss';var label=ds.score>=80?'掌握良好':ds.score>=40?'部分正确':'需要加强';h+='<div class="check-header '+cls+'"><span>校核结果</span><span>'+ds.score+'分 - '+label+'</span></div>';h+='<div class="check-body" style="background:#f5f5f5"><div style="font-weight:600;color:var(--text2);margin-bottom:4px">你的答案：</div><div>'+(esc(ds.input)||'<span style="color:#bbb">（未填写）</span>')+'</div></div>';h+='<div class="check-body"><div style="font-weight:600;color:var(--accent);margin-bottom:4px">正确答案：</div><div>'+esc(item.content||'暂无答案')+'</div></div>';if(ds.correctItems&&ds.correctItems.length>0){h+='<div class="check-body" style="font-size:13px;line-height:2"><div style="font-weight:600;margin-bottom:4px">逐条对比：</div>';var used=[];for(var i=0;i<ds.correctItems.length;i++){var ci=ds.correctItems[i].replace(/^\(\d+\)/,'').trim();var isMatch=ds.matchedIndices&&ds.matchedIndices.indexOf(i)!==-1;var matchIdx=-1;if(isMatch){var cni=normalizeText(ci);for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=normalizeText(ds.userItems[j].replace(/^\(\d+\)/,''));if(cni===uj||(cni.length>2&&uj.indexOf(cni)!==-1)||(uj.length>2&&cni.indexOf(uj)!==-1)){matchIdx=j;used.push(j);break}}}var ui=matchIdx>=0?ds.userItems[matchIdx].replace(/^\(\d+\)/,'').trim():'';h+='<div style="margin-bottom:4px"><span style="color:var(--text2)">('+(i+1)+') </span>';h+=isMatch?'<span class="correct-line">&#10003; '+esc(ci)+'</span>':'<span class="missed-line">&#10007; '+esc(ci)+'</span>';if(!isMatch&&ui)h+='<br><span class="extra-line">你的回答：'+esc(ui)+'</span>';h+='</div>'}for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=ds.userItems[j].replace(/^\(\d+\)/,'').trim();if(uj.length>0)h+='<div style="margin-bottom:4px"><span class="extra-line">&#9654; 多余项：'+esc(uj)+'</span></div>'}h+='</div>'}h+='<div style="padding:6px 10px"><button class="abtn" style="background:#e3f2fd;color:#1565c0" onclick="retryDict()">重新默写</button></div></div>';return h}
+function normalizeSynonyms(t){
+  t=t.replace(/[及和与或]/g,'与');
+  t=t.replace(/战略|策略|方针/g,'战略');
+  t=t.replace(/组织|企业|公司|机构/g,'组织');
+  t=t.replace(/信息资源|数据资源/g,'数据资源');
+  t=t.replace(/信息系统|应用系统|系统/g,'系统');
+  t=t.replace(/活动|流程|过程/g,'活动');
+  t=t.replace(/模型|模式/g,'模型');
+  t=t.replace(/规划|计划/g,'规划');
+  t=t.replace(/构建|建设|搭建|建立/g,'建立');
+  t=t.replace(/管理|管控|治理/g,'治理');
+  t=t.replace(/进行/g,'');
+  t=t.replace(/组织的数据/g,'数据');
+  t=t.replace(/组织的/g,'');
+  t=t.replace(/的/g,'');
+  t=t.replace(/了/g,'');
+  t=t.replace(/为/g,'');
+  t=t.replace(/对/g,'');
+  t=t.replace(/使/g,'');
+  t=t.replace(/开展/g,'');
+  t=t.replace(/相关/g,'');
+  t=t.replace(/等/g,'');
+  t=t.replace(/一类|一种/g,'');
+  return t;
+}
+function textSimilarity(a,b){
+  if(!a||!b)return 0;
+  if(a===b)return 100;
+  var ac={},bc={};
+  for(var i=0;i<a.length;i++){var c=a[i];ac[c]=(ac[c]||0)+1}
+  for(var i=0;i<b.length;i++){var c=b[i];bc[c]=(bc[c]||0)+1}
+  var common=0;
+  var keys=Object.keys(ac);
+  for(var i=0;i<keys.length;i++){var k=keys[i];if(bc[k])common+=Math.min(ac[k],bc[k])}
+  return Math.round(common*2/(a.length+b.length)*100);
+}
+function fuzzyMatch(correctStr,userStr){
+  if(correctStr===userStr)return true;
+  if(correctStr.length>2&&userStr.indexOf(correctStr)!==-1)return true;
+  if(userStr.length>2&&correctStr.indexOf(userStr)!==-1)return true;
+  var cs=normalizeSynonyms(correctStr),us=normalizeSynonyms(userStr);
+  if(cs===us)return true;
+  if(cs.length>2&&us.indexOf(cs)!==-1&&cs.length>=4)return true;
+  if(us.length>2&&cs.indexOf(us)!==-1&&us.length>=4)return true;
+  var sim=textSimilarity(cs,us);
+  return sim>=80;
+}
+function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=ensureDict(item);ds.input=ta?ta.value:'';ds.checked=true;ds.lastCheckTime=Date.now();var correct=normalizeText(item.content||'');var userRaw=ds.input||'';function extractItems(text){if(!text)return[];var n=text.replace(/[\(（](\d+)[\)）]/g,'($1)').replace(/(\d+)[,.。、]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0}).map(function(x){var s=x.replace(/^\(\d+\)/,'').trim();s=s.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return s.replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}var s=text.split(/[,.。、]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s.map(function(x){var t=x.trim();t=t.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return t.replace(/[。.,,；;！!？?：:、]+$/,'').trim()});return [text.trim().replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()]}function extractUserItems(raw){var parts=raw.split(/[\n\r]+/);if(parts.length<=1){parts=raw.split(/[ ]+/)}return parts.map(function(p){return p.trim()}).filter(function(p){return p.length>0}).map(function(p){return p.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}var correctItems=extractItems(correct);var userItems=extractUserItems(userRaw).map(function(u){return normalizeText(u)});var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=userItems[j].replace(/^\(\d+\)/,'');if(fuzzyMatch(cn,un)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(normalizeText(userRaw)===correct?100:0);ds.score=score;ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;saveDict();render();toast('校核完成：'+score+'分')}
+function renderCheckResult(item,ds){var h='<div class="check-result">';var cls=ds.score>=80?'perfect':ds.score>=40?'partial':'miss';var label=ds.score>=80?'掌握良好':ds.score>=40?'部分正确':'需要加强';h+='<div class="check-header '+cls+'"><span>校核结果</span><span>'+ds.score+'分 - '+label+'</span></div>';h+='<div class="check-body" style="background:#f5f5f5"><div style="font-weight:600;color:var(--text2);margin-bottom:4px">你的答案：</div><div>'+(esc(ds.input)||'<span style="color:#bbb">（未填写）</span>')+'</div></div>';h+='<div class="check-body"><div style="font-weight:600;color:var(--accent);margin-bottom:4px">正确答案：</div><div>'+esc(item.content||'暂无答案')+'</div></div>';if(ds.correctItems&&ds.correctItems.length>0){h+='<div class="check-body" style="font-size:13px;line-height:2"><div style="font-weight:600;margin-bottom:4px">逐条对比：</div>';var used=[];for(var i=0;i<ds.correctItems.length;i++){var ci=ds.correctItems[i].replace(/^\(\d+\)/,'').trim();var isMatch=ds.matchedIndices&&ds.matchedIndices.indexOf(i)!==-1;var matchIdx=-1;if(isMatch){var cni=normalizeText(ci);for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=normalizeText(ds.userItems[j].replace(/^\(\d+\)/,''));if(fuzzyMatch(cni,uj)){matchIdx=j;used.push(j);break}}}var ui=matchIdx>=0?ds.userItems[matchIdx].replace(/^\(\d+\)/,'').trim():'';h+='<div style="margin-bottom:4px"><span style="color:var(--text2)">('+(i+1)+') </span>';h+=isMatch?'<span class="correct-line">&#10003; '+esc(ci)+'</span>':'<span class="missed-line">&#10007; '+esc(ci)+'</span>';if(!isMatch&&ui)h+='<br><span class="extra-line">你的回答：'+esc(ui)+'</span>';h+='</div>'}for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=ds.userItems[j].replace(/^\(\d+\)/,'').trim();if(uj.length>0)h+='<div style="margin-bottom:4px"><span class="extra-line">&#9654; 多余项：'+esc(uj)+'</span></div>'}h+='</div>'}h+='<div style="padding:6px 10px"><button class="abtn" style="background:#e3f2fd;color:#1565c0" onclick="retryDict()">重新默写</button></div></div>';return h}
 function retryDict(){var item=getItem();if(!item)return;var ds=ensureDict(item);ds.checked=false;ds.score=null;ds.input='';saveDict();render()}
-function renderEdit(item){var h='<div class="tags"><span class="tag tch" style="font-size:12px">编辑模式</span></div>';h+='<div class="fld"><div class="fld-label">问题标题</div><input class="ef big" id="eTitle" value="'+ea(item.title)+'"></div>';h+='<div class="fld"><div class="fld-label">星级分类</div><div class="star-sel">';['三星','四星','五星'].forEach(function(s){var c=s==='五星'?'so5':s==='四星'?'so4':'so3';h+='<div class="star-opt '+c+(item.category===s?' on':'')+'" onclick="setCat(\''+s+'\')">'+s+'</div>'});h+='</div><input type="hidden" id="eCat" value="'+ea(item.category)+'"></div>';h+='<div class="fld"><div class="fld-label">答案内容</div><textarea class="ef" id="eContent" rows="5">'+esc(item.content||'')+'</textarea></div>';h+='<div class="fld"><div class="fld-label">记忆口诀</div><input class="ef mn" id="eMn" value="'+ea(item.mnemonic||'')+'" placeholder="输入助记口诀"></div>';h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="background:var(--accent);color:#fff;flex:2" onclick="saveEdit()">&#10003; 保存</button><button class="btn" style="background:#f5f5f5;color:var(--text2);flex:1" onclick="toggleEdit()">取消</button></div>';h+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn bp" style="flex:1" onclick="moveCard(-1)">&#9650; 上移</button><button class="btn bp" style="flex:1" onclick="moveCard(1)">&#9660; 下移</button></div>';document.getElementById('card').innerHTML=h}
+function renderEdit(item){var chOpts='';chapters.forEach(function(c){chOpts+='<option value="'+esc(c)+'"'+(item.chapter===c?' selected':'')+'>'+esc(c)+'</option>'});var h='<div class="tags"><span class="tag tch" style="font-size:12px">编辑模式</span></div>';h+='<div class="fld"><div class="fld-label">问题标题</div><input class="ef big" id="eTitle" value="'+ea(item.title)+'"></div>';h+='<div class="fld"><div class="fld-label">所属章节</div><select class="ef" id="eChapter" style="appearance:auto">'+chOpts+'</select></div>';h+='<div class="fld"><div class="fld-label">星级分类</div><div class="star-sel">';['三星','四星','五星'].forEach(function(s){var c=s==='五星'?'so5':s==='四星'?'so4':'so3';h+='<div class="star-opt '+c+(item.category===s?' on':'')+'" onclick="setCat(\''+s+'\')">'+s+'</div>'});h+='</div><input type="hidden" id="eCat" value="'+ea(item.category)+'"></div>';h+='<div class="fld"><div class="fld-label">答案内容</div><textarea class="ef" id="eContent" rows="5">'+esc(item.content||'')+'</textarea></div>';h+='<div class="fld"><div class="fld-label">记忆口诀</div><input class="ef mn" id="eMn" value="'+ea(item.mnemonic||'')+'" placeholder="输入助记口诀"></div>';var curAi=allData.indexOf(item);var fi=filtered.indexOf(item);var sel=cSelVal();var isFiltered=sel!=='all';var posLabel=isFiltered?'本章第 '+(fi+1)+'/'+filtered.length+' 题':'全部第 '+(curAi+1)+'/'+allData.length+' 题';var inputMax=isFiltered?filtered.length:allData.length;var inputVal=isFiltered?(fi+1):(curAi+1);h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="background:var(--accent);color:#fff;flex:2" onclick="saveEdit()">&#10003; 保存</button><button class="btn" style="background:#f5f5f5;color:var(--text2);flex:1" onclick="toggleEdit()">取消</button></div>';h+='<div class="fld" style="margin-top:8px"><div class="fld-label">调整序号（'+posLabel+'）</div><div style="display:flex;gap:8px"><input class="ef" id="ePos" type="number" min="1" max="'+inputMax+'" value="'+inputVal+'" style="flex:1;text-align:center"><button class="btn" style="background:#e3f2fd;color:#1565c0;flex:1" onclick="moveTo()">移动到目标序号</button></div></div>';h+='<div style="margin-top:10px"><button class="btn" style="width:100%;background:#ffebee;color:var(--err);border:1px solid #ffcdd2;padding:10px" onclick="deleteItem()">&#128465; 删除该知识点</button></div>';document.getElementById('card').innerHTML=h}
 function toggleEdit(){editing=!editing;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);if(editing)adding=false;render()}
 function toggleAdd(){adding=!adding;if(adding&&editing)editing=false;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);render()}
 function renderAddForm(){var card=document.getElementById('card');var chOpts='';chapters.forEach(function(c){chOpts+='<option value="'+esc(c)+'">'+esc(c)+'</option>'});var h='<div class="tags"><span class="tag tmode" style="background:#e3f2fd;color:#1565c0">新增知识点</span></div>';h+='<div class="fld"><div class="fld-label">问题标题 *</div><input class="ef big" id="aTitle" placeholder="输入知识点问题"></div>';h+='<div class="fld"><div class="fld-label">所属章节 *</div><select class="ef" id="aChapter" style="appearance:auto">'+chOpts+'</select></div>';h+='<div class="fld"><div class="fld-label">星级分类 *</div><div class="star-sel"><div class="star-opt so3 on" data-cat="三星" onclick="setAddCat(this)">三星</div><div class="star-opt so4" data-cat="四星" onclick="setAddCat(this)">四星</div><div class="star-opt so5" data-cat="五星" onclick="setAddCat(this)">五星</div></div></div>';h+='<div class="fld"><div class="fld-label">答案内容 *</div><textarea class="ef" id="aContent" rows="4" placeholder="输入答案内容，多条可用 (1)xxx (2)xxx 格式"></textarea></div>';h+='<div class="fld"><div class="fld-label">记忆口诀（选填）</div><input class="ef mn" id="aMn" placeholder="输入助记口诀"></div>';h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="background:var(--accent);color:#fff;flex:2" onclick="saveNew()">&#10003; 添加</button><button class="btn" style="background:#f5f5f5;color:var(--text2);flex:1" onclick="toggleAdd()">取消</button></div>';document.getElementById('pBar').style.width='0%';document.getElementById('pText').textContent='新增模式';document.getElementById('swH').textContent='填写知识点信息后点击添加';card.innerHTML=h;document.getElementById('aTitle').focus()}
 function setAddCat(el){var cats=document.querySelectorAll('.star-sel .star-opt');for(var i=0;i<cats.length;i++){cats[i].classList.remove('on')}el.classList.add('on')}
-function saveNew(){var title=document.getElementById('aTitle').value.trim();var chapter=document.getElementById('aChapter').value;var content=document.getElementById('aContent').value.trim();var mnemonic=document.getElementById('aMn').value.trim();var catEl=document.querySelector('.star-sel .star-opt.on');var category=catEl?catEl.getAttribute('data-cat'):'三星';if(!title){toast('请输入问题标题');document.getElementById('aTitle').focus();return}if(!content){toast('请输入答案内容');document.getElementById('aContent').focus();return}var id='custom_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);var newItem={id:id,title:title,chapter:chapter,category:category,content:content,mnemonic:mnemonic};allData.unshift(newItem);save();filtered=allData.slice();var sel=document.getElementById('chSel');if(sel.value!=='all'){filtered=allData.filter(function(i){return i.chapter===sel.value})}idx=0;adding=false;render();toast('知识点已添加');populateChSel()}
+function saveNew(){var title=document.getElementById('aTitle').value.trim();var chapter=document.getElementById('aChapter').value;var content=document.getElementById('aContent').value.trim();var mnemonic=document.getElementById('aMn').value.trim();var catEl=document.querySelector('.star-sel .star-opt.on');var category=catEl?catEl.getAttribute('data-cat'):'三星';if(!title){toast('请输入问题标题');document.getElementById('aTitle').focus();return}if(!content){toast('请输入答案内容');document.getElementById('aContent').focus();return}var id='custom_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);var newItem={id:id,title:title,chapter:chapter,category:category,content:content,mnemonic:mnemonic};allData.unshift(newItem);save();filtered=allData.filter(function(i){return i});var sel=document.getElementById('chSel');if(sel.value!=='all'){filtered=allData.filter(function(i){return i&&i.chapter===sel.value})}idx=0;adding=false;render();toast('知识点已添加');populateChSel()}
 function setCat(c){document.getElementById('eCat').value=c;var opts=document.querySelectorAll('.star-opt');for(var i=0;i<opts.length;i++){opts[i].classList.toggle('on',opts[i].textContent===c)}}
-function saveEdit(){var item=getItem();if(!item)return;item.title=document.getElementById('eTitle').value.trim();item.category=document.getElementById('eCat').value;item.content=document.getElementById('eContent').value.trim();item.mnemonic=document.getElementById('eMn').value.trim();var orig=allData.find(function(a){return a.id===item.id});if(orig){orig.title=item.title;orig.category=item.category;orig.content=item.content;orig.mnemonic=item.mnemonic}save();toggleEdit();render();toast('修改已保存')}
-function moveCard(dir){
+function deleteItem(){var item=getItem();if(!item)return;if(!confirm('确定要删除「'+item.title+'」吗？\n删除后无法恢复！'))return;var ai=allData.findIndex(function(a){return a&&a.id===item.id});if(ai===-1)return;allData.splice(ai,1);delete dictState[item.id];save();saveDict();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}if(idx>=filtered.length)idx=filtered.length-1;if(idx<0)idx=0;if(editing)toggleEdit();render();toast('知识点已删除')}function saveEdit(){var item=getItem();if(!item)return;item.title=document.getElementById('eTitle').value.trim();item.chapter=document.getElementById('eChapter').value;item.category=document.getElementById('eCat').value;item.content=document.getElementById('eContent').value.trim();item.mnemonic=document.getElementById('eMn').value.trim();var orig=allData.find(function(a){return a&&a.id===item.id});if(orig){orig.title=item.title;orig.chapter=item.chapter;orig.category=item.category;orig.content=item.content;orig.mnemonic=item.mnemonic}save();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}else{idx=filtered.indexOf(item);if(idx===-1)idx=0}toggleEdit();render();toast('修改已保存')}
+function moveTo(){
   var item=getItem();if(!item)return;
+  var input=document.getElementById('ePos');
+  var targetPos=parseInt(input.value,10);
+  var sel=cSelVal();
   var ai=allData.indexOf(item);if(ai===-1)return;
-  var ni=ai+dir;
-  if(ni<0||ni>=allData.length){toast('已在边界');return}
-  var tmp=allData[ai];allData[ai]=allData[ni];allData[ni]=tmp;
+  if(sel==='all'){
+    var total=allData.length;
+    if(isNaN(targetPos)||targetPos<1||targetPos>total){toast('请输入有效序号(1-'+total+')');return}
+    if(targetPos-1===ai){toast('已在目标位置');return}
+    allData.splice(ai,1);
+    allData.splice(targetPos-1,0,item);
+  }else{
+    var chItems=[];
+    allData.forEach(function(it,i){if(it&&it.chapter===sel){chItems.push({item:it,origIdx:i})}});
+    var curChIdx=chItems.findIndex(function(x){return x.item===item});
+    if(curChIdx===-1){toast('题目不在当前章节');return}
+    if(isNaN(targetPos)||targetPos<1||targetPos>chItems.length){toast('请输入有效序号(1-'+chItems.length+')');return}
+    if(targetPos-1===curChIdx){toast('已在目标位置');return}
+    chItems.splice(curChIdx,1);
+    chItems.splice(targetPos-1,0,{item:item,origIdx:ai});
+    var newAllData=[];var chIdx=0;
+    allData.forEach(function(it){if(!it)return;if(it.chapter===sel){newAllData.push(chItems[chIdx].item);chIdx++}else{newAllData.push(it)}});
+    allData=newAllData;
+  }
   save();
-  filtered=cSelVal()==='all'?allData.slice():allData.filter(function(i){return i.chapter===cSelVal()});
+  filtered=sel==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel});
   var fi=filtered.indexOf(item);if(fi!==-1)idx=fi;
-  render();toast(dir<0?'已上移':'已下移');
+  render();toast('已移至第'+targetPos+'位');
 }
 function cSelVal(){return document.getElementById('chSel').value}
 function nextCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();idx=(idx+1)%filtered.length;anim('l')}
@@ -322,13 +483,13 @@ function toggleExportMenu(e){if(e)e.stopPropagation();document.getElementById('e
 function closeExportMenu(){var m=document.getElementById('exportMenu');if(m)m.classList.remove('show')}
 function escHtml(s){s=String(s||'');return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>')}
 document.addEventListener('click',function(){closeExportMenu()});
-function exportJSON(){closeExportMenu();var json=JSON.stringify({chapters:chapters,knowledge:allData,dict:slimDict(dictState)},null,2);var b=new Blob([json],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_数据导出_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('JSON数据已导出')}
+function exportJSON(){closeExportMenu();var json=JSON.stringify({chapters:chapters,knowledge:allData,dict:slimDict(dictState)},null,2);var b=new Blob([json],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='不是事_数据导出_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('JSON数据已导出')}
 function buildExportRows(){return allData.map(function(it,i){return '<tr><td style="text-align:center">'+(i+1)+'</td><td>'+escHtml(it.title)+'</td><td style="text-align:center">'+escHtml(it.category)+'</td><td>'+escHtml(it.chapter)+'</td><td>'+escHtml(it.content)+'</td><td>'+escHtml(it.mnemonic)+'</td><td style="text-align:center">'+escHtml(it.status)+'</td></tr>'}).join('')}
-function exportWord(){closeExportMenu();var d=new Date();var ds=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';var rows=buildExportRows();var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>好好学习</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]--><style>@page{size:A4 landscape;margin:1cm}body{font-family:微软雅黑,Arial,sans-serif;font-size:10.5pt}h1{font-size:18pt;text-align:center;margin-bottom:5pt}.info{text-align:center;color:#666;font-size:9pt;margin-bottom:15pt}table{border-collapse:collapse;width:100%;font-size:9pt}th,td{border:0.5pt solid #999;padding:3pt 4pt;vertical-align:top}th{background:#4caf50;color:#fff;font-weight:bold}tr:nth-child(even){background:#f7f9fc}</style></head><body><h1>好好学习 - 知识点导出</h1><div class="info">导出日期：'+ds+' ｜ 共 '+allData.length+' 条知识点</div><table><tr><th style="width:30pt">序号</th><th style="width:120pt">标题</th><th style="width:40pt">分类</th><th style="width:80pt">章节</th><th>知识内容</th><th style="width:100pt">记忆口诀</th><th style="width:50pt">掌握程度</th></tr>'+rows+'</table></body></html>';var b=new Blob(['\ufeff'+html],{type:'application/msword;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_知识点_'+d.toISOString().slice(0,10)+'.doc';a.click();URL.revokeObjectURL(a.href);toast('Word文档已导出')}
-function exportExcel(){closeExportMenu();var d=new Date();var rows=buildExportRows();var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>知识点</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table border="1"><tr style="background:#4caf50;color:#fff;font-weight:bold"><td>序号</td><td>标题</td><td>分类</td><td>章节</td><td>知识内容</td><td>记忆口诀</td><td>掌握程度</td></tr>'+rows+'</table></body></html>';var b=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='好好学习_知识点_'+d.toISOString().slice(0,10)+'.xls';a.click();URL.revokeObjectURL(a.href);toast('Excel文件已导出')}
+function exportWord(){closeExportMenu();var d=new Date();var ds=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日';var rows=buildExportRows();var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>不是事</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]--><style>@page{size:A4 landscape;margin:1cm}body{font-family:微软雅黑,Arial,sans-serif;font-size:10.5pt}h1{font-size:18pt;text-align:center;margin-bottom:5pt}.info{text-align:center;color:#666;font-size:9pt;margin-bottom:15pt}table{border-collapse:collapse;width:100%;font-size:9pt}th,td{border:0.5pt solid #999;padding:3pt 4pt;vertical-align:top}th{background:#4caf50;color:#fff;font-weight:bold}tr:nth-child(even){background:#f7f9fc}</style></head><body><h1>不是事 - 知识点导出</h1><div class="info">导出日期：'+ds+' ｜ 共 '+allData.length+' 条知识点</div><table><tr><th style="width:30pt">序号</th><th style="width:120pt">标题</th><th style="width:40pt">分类</th><th style="width:80pt">章节</th><th>知识内容</th><th style="width:100pt">记忆口诀</th><th style="width:50pt">掌握程度</th></tr>'+rows+'</table></body></html>';var b=new Blob(['\ufeff'+html],{type:'application/msword;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='不是事_知识点_'+d.toISOString().slice(0,10)+'.doc';a.click();URL.revokeObjectURL(a.href);toast('Word文档已导出')}
+function exportExcel(){closeExportMenu();var d=new Date();var rows=buildExportRows();var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>知识点</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table border="1"><tr style="background:#4caf50;color:#fff;font-weight:bold"><td>序号</td><td>标题</td><td>分类</td><td>章节</td><td>知识内容</td><td>记忆口诀</td><td>掌握程度</td></tr>'+rows+'</table></body></html>';var b=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='不是事_知识点_'+d.toISOString().slice(0,10)+'.xls';a.click();URL.revokeObjectURL(a.href);toast('Excel文件已导出')}
 var SYNC_REPO='zzzthua/haohaoxuexi';
-var _syncSha=null;
-var _tkP1='ghp_uw3Tr2ta';var _tkP2='kL8EDsBFUIvA';var _tkP3='1VpCqAxFw72i';var _tkP4='0ZPm';
+var _syncSha=null,_cloudData=null;
+var _tkP1='ghp_snaND39z';var _tkP2='nslu4mnQQr';var _tkP3='kqyZzGVjDo4';var _tkP4='J3BSvqj';
 function getSyncToken(){
   var saved=localStorage.getItem('hxx_sync_token')||'';
   if(saved==='Qwer369988'||saved==='')return _tkP1+_tkP2+_tkP3+_tkP4;
@@ -354,73 +515,242 @@ function cloudSync(){
   if(!tk){showTokenDialog();return}
   var btn=document.getElementById('syncBtn');
   if(btn.disabled)return;
-  btn.disabled=true;btn.textContent='同步中...';btn.style.opacity='0.6';
-  _syncSha=null;
+  btn.disabled=true;btn.textContent='拉取数据...';btn.style.opacity='0.6';
+  _syncSha=null;_cloudData=null;
+  var s1Done=false,s2Done=false,s1Ok=false,s2Ok=false;
   var xhr1=new XMLHttpRequest();
-  xhr1.open('GET','https://api.github.com/repos/'+SYNC_REPO+'/contents/data.js');
-  xhr1.setRequestHeader('Authorization','Bearer '+tk);
-  xhr1.setRequestHeader('Accept','application/vnd.github.v3+json');
+  xhr1.open('GET','https://raw.githubusercontent.com/'+SYNC_REPO+'/main/data.js?t='+Date.now());
+  xhr1.timeout=12000;
   xhr1.onload=function(){
     if(xhr1.status===200){
-      try{var info=JSON.parse(xhr1.responseText);_syncSha=info.sha}catch(e){}
+      try{var code=xhr1.responseText;var s=code.indexOf('{'),e=code.lastIndexOf('}')+1;_cloudData=JSON.parse(code.slice(s,e));s1Ok=true}catch(err){}
     }
-    doSyncPush(tk);
+    s1Done=true;checkBoth();
   };
-  xhr1.onerror=function(){doSyncPush(tk)};
+  xhr1.onerror=function(){s1Done=true;checkBoth()};
+  xhr1.ontimeout=function(){s1Done=true;checkBoth()};
   xhr1.send();
+  var xhr2=new XMLHttpRequest();
+  xhr2.open('GET','https://api.github.com/repos/'+SYNC_REPO+'/git/trees/main');
+  xhr2.setRequestHeader('Authorization','Bearer '+tk);
+  xhr2.setRequestHeader('Accept','application/vnd.github.v3+json');
+  xhr2.timeout=12000;
+  xhr2.onload=function(){
+    if(xhr2.status===200){
+      try{var tree=JSON.parse(xhr2.responseText);for(var i=0;i<tree.tree.length;i++){if(tree.tree[i].path==='data.js'){_syncSha=tree.tree[i].sha;s2Ok=true;break}}}catch(err){}
+    }
+    s2Done=true;checkBoth();
+  };
+  xhr2.onerror=function(){s2Done=true;checkBoth()};
+  xhr2.ontimeout=function(){s2Done=true;checkBoth()};
+  xhr2.send();
+  function checkBoth(){
+    if(!s1Done||!s2Done)return;
+    if(s1Ok&&s2Ok){doSyncMerge(tk);return}
+    fallbackAPI(tk);
+  }
+  function fallbackAPI(tk){
+    var btn2=document.getElementById('syncBtn');
+    btn2.textContent='拉取数据...';
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET','https://api.github.com/repos/'+SYNC_REPO+'/contents/data.js');
+    xhr.setRequestHeader('Authorization','Bearer '+tk);
+    xhr.setRequestHeader('Accept','application/vnd.github.v3+json');
+    xhr.timeout=20000;
+    xhr.onload=function(){
+      if(xhr.status===200){
+        try{var info=JSON.parse(xhr.responseText);_syncSha=info.sha;var code=decodeURIComponent(escape(atob(info.content)));var s=code.indexOf('{'),e=code.lastIndexOf('}')+1;_cloudData=JSON.parse(code.slice(s,e))}catch(err){}
+      }
+      doSyncMerge(tk);
+    };
+    xhr.onerror=function(){doSyncMerge(tk)};
+    xhr.ontimeout=function(){
+      btn2.disabled=false;btn2.textContent='同步';btn2.style.opacity='1';
+      toast('同步超时，请重试');
+    };
+    xhr.send();
+  }
 }
-function doSyncPush(tk){
-  var json=JSON.stringify({chapters:chapters,knowledge:allData,dict:slimDict(dictState)});
-  var code='var INIT_DATA='+json+';';
+function mergeKnowledge(local,cloud){
+  if(!cloud||!cloud.knowledge)return local;
+  if(!local||!local.knowledge)return cloud;
+  var ck=cloud.knowledge.filter(function(i){return i&&i.id});
+  var lk=local.knowledge.filter(function(i){return i&&i.id});
+  var cloudById={},localById={};
+  ck.forEach(function(k){cloudById[k.id]=k});
+  lk.forEach(function(k){localById[k.id]=k});
+  var allIds=Object.keys(cloudById);
+  Object.keys(localById).forEach(function(id){if(!cloudById[id])allIds.push(id)});
+  allIds.sort(function(a,b){var na=Number(a),nb=Number(b);if(!isNaN(na)&&!isNaN(nb))return na-nb;return String(a).localeCompare(String(b))});
+  var merged=allIds.map(function(id){
+    var cl=cloudById[id],lo=localById[id];
+    if(!cl)return lo;
+    if(!lo)return cl;
+    var localChanged=lo.title!==cl.title||lo.chapter!==cl.chapter||lo.category!==cl.category||lo.content!==cl.content||lo.mnemonic!==cl.mnemonic||lo.status!=='未开始'||(lo.mnemonic&&lo.mnemonic.length>0);
+    var cloudChanged=cl.title!==lo.title||cl.chapter!==lo.chapter||cl.category!==lo.category||cl.content!==lo.content||cl.mnemonic!==lo.mnemonic||cl.status!=='未开始'||(cl.mnemonic&&cl.mnemonic.length>0);
+    if(localChanged&&!cloudChanged)return lo;
+    if(!localChanged&&cloudChanged)return cl;
+    if(cl.content&&cl.content.length>(lo.content?lo.content.length:0))return cl;
+    return lo;
+  });
+  var chapters=(ck.length>=lk.length)?(cloud.chapters||[]):(local.chapters||[]);
+  return{chapters:chapters,knowledge:merged,dict:cloud.dict||{}};
+}
+function doSyncMerge(tk){
+  var btn=document.getElementById('syncBtn');
+  btn.textContent='合并数据...';
+  if(_cloudData&&_cloudData.knowledge){
+    _cloudData.knowledge=_cloudData.knowledge.filter(function(i){return i&&i.id});
+  }
+  var mergedData=mergeKnowledge({chapters:chapters,knowledge:allData.filter(function(i){return i&&i.id}),dict:slimDict(dictState)},_cloudData);
+  var newDict=slimDict(dictState);
+  var newJson=JSON.stringify({chapters:mergedData.chapters,knowledge:mergedData.knowledge,dict:newDict});
+  var cloudJson=_cloudData?JSON.stringify({chapters:_cloudData.chapters,knowledge:_cloudData.knowledge,dict:_cloudData.dict||{}}):'';
+  if(cloudJson&&cloudJson===newJson&&_syncSha){
+    btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';
+    toast('数据已是最新 ('+allData.length+'条)');
+    return;
+  }
+  allData=mergedData.knowledge.filter(function(i){return i&&i.id});
+  chapters=mergedData.chapters;
+  var sel=document.getElementById('chSel');
+  filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});
+  if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}
+  idx=0;
+  save();
+  populateChSel();render();
+  btn.textContent='上传数据...';
+  var code='var INIT_DATA='+newJson+';';
   var payload={message:'Sync data via app - '+new Date().toLocaleString('zh-CN'),content:btoa(unescape(encodeURIComponent(code)))};
   if(_syncSha)payload.sha=_syncSha;
   var xhr2=new XMLHttpRequest();
   xhr2.open('PUT','https://api.github.com/repos/'+SYNC_REPO+'/contents/data.js');
   xhr2.setRequestHeader('Authorization','Bearer '+tk);
   xhr2.setRequestHeader('Accept','application/vnd.github.v3+json');
+  xhr2.timeout=30000;
   xhr2.onload=function(){
-    var btn=document.getElementById('syncBtn');
     btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';
     try{
       var res=JSON.parse(xhr2.responseText);
       if(res.commit&&res.commit.sha){
         DATA_VERSION='v'+Date.now().toString(36);
         localStorage.setItem('hxx_ver',DATA_VERSION);
-        toast('同步成功');
+        toast('同步成功 ('+allData.length+'条)');
       }else if(res.message){
         toast('同步失败: '+res.message.substring(0,30));
       }
     }catch(e){toast('同步失败')}
   };
   xhr2.onerror=function(){
-    var btn=document.getElementById('syncBtn');btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';toast('同步失败，请检查网络');
+    btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';toast('同步失败，请检查网络');
+  };
+  xhr2.ontimeout=function(){
+    btn.disabled=false;btn.textContent='同步';btn.style.opacity='1';toast('同步超时，请重试');
   };
   xhr2.send(JSON.stringify(payload));
 }
 function setupSwipe(){var c=document.getElementById('cWrap');var sx,sy;c.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});c.addEventListener('touchend',function(e){if(editing||mode===2)return;if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT')return;var dx=e.changedTouches[0].clientX-sx;var dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50&&Math.abs(dy)<20){dx<0?nextCard():prevCard()}},{passive:true})}
+function formatRelativeTime(ts){
+  if(!ts)return'';
+  var now=new Date();var then=new Date(ts);
+  var today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+  var yesterday=today-86400000;
+  var thenDay=new Date(then.getFullYear(),then.getMonth(),then.getDate()).getTime();
+  var timeStr=String(then.getHours()).padStart(2,'0')+':'+String(then.getMinutes()).padStart(2,'0');
+  if(thenDay===today)return'今天 '+timeStr;
+  if(thenDay===yesterday)return'昨天 '+timeStr;
+  return String(then.getMonth()+1)+'/'+String(then.getDate())+' '+timeStr;
+}
 function getWeekNumber(d){var date=new Date(d);date.setHours(0,0,0,0);date.setDate(date.getDate()+3-(date.getDay()+6)%7);var year=date.getFullYear();var jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);var dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1;if(dayNr<1){year--;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}else if(dayNr>366||(dayNr>365&&((year%4!==0)||(year%100===0&&year%400!==0)))){year++;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}return year+'-W'+String(Math.ceil(dayNr/7)).padStart(2,'0')}
 function formatWeekLabel(weekKey){var parts=weekKey.split('-W');return parts[0]+'年第'+parts[1]+'周'}
 function calcStats(){
-  var entries=Object.keys(dictState).map(function(k){var d=dictState[k];d._id=k;return d}).filter(function(d){return d.checked&&d.score!==null});
+  var entries=Object.keys(dictState).map(function(k){var d=dictState[k];return{checked:d.checked,score:d.score,lastCheckTime:d.lastCheckTime,_id:k}}).filter(function(d){return d.checked&&d.score!==null});
   if(entries.length===0)return null;
   var total=entries.length,sum=0,maxS=0,minS=100;
-  for(var i=0;i<entries.length;i++){sum+=entries[i].score;maxS=Math.max(maxS,entries[i].score);minS=Math.min(minS,entries[i].score)}
+  var today=new Date();today.setHours(0,0,0,0);var todayTs=today.getTime();
+  var tomorrowTs=todayTs+86400000;
+  var todayCount=0,todaySum=0,todayMax=0;
+  for(var i=0;i<entries.length;i++){
+    sum+=entries[i].score;maxS=Math.max(maxS,entries[i].score);minS=Math.min(minS,entries[i].score);
+    if(entries[i].lastCheckTime>=todayTs&&entries[i].lastCheckTime<tomorrowTs){todayCount++;todaySum+=entries[i].score;todayMax=Math.max(todayMax,entries[i].score)}
+  }
   var avg=Math.round(sum/total);
-  var chMap={},weekMap={};
+  var todayAvg=todayCount>0?Math.round(todaySum/todayCount):null;
+  var bins=[{label:'0-20',min:0,max:20,color:'var(--err)'},{label:'21-40',min:21,max:40,color:'#ff7043'},{label:'41-60',min:41,max:60,color:'var(--warn)'},{label:'61-80',min:61,max:80,color:'#66bb6a'},{label:'81-99',min:81,max:99,color:'var(--accent)'},{label:'100',min:100,max:100,color:'#2e7d32'}];
+  for(var i=0;i<bins.length;i++)bins[i].count=0;
+  var maxBinCount=0;
+  for(var i=0;i<entries.length;i++){
+    var s=entries[i].score;
+    for(var j=0;j<bins.length;j++){if(s>=bins[j].min&&s<=bins[j].max){bins[j].count++;maxBinCount=Math.max(maxBinCount,bins[j].count);break}}
+  }
+  var masteryMap={};
+  for(var i=0;i<entries.length;i++){
+    var id=entries[i]._id;
+    if(!masteryMap[id]||entries[i].score>masteryMap[id])masteryMap[id]=entries[i].score;
+  }
+  var masteryLevels=[{label:'完全掌握',min:100,max:100,color:'#2e7d32',count:0},{label:'基本掌握',min:80,max:99,color:'var(--accent)',count:0},{label:'部分掌握',min:60,max:79,color:'var(--warn)',count:0},{label:'需要加强',min:0,max:59,color:'var(--err)',count:0}];
+  var practicedIds=Object.keys(masteryMap);
+  for(var i=0;i<practicedIds.length;i++){
+    var s=masteryMap[practicedIds[i]];
+    for(var j=0;j<masteryLevels.length;j++){if(s>=masteryLevels[j].min&&s<=masteryLevels[j].max){masteryLevels[j].count++;break}}
+  }
+  var catMap={};
+  for(var i=0;i<entries.length;i++){
+    var item=allData.find(function(a){return String(a.id)===entries[i]._id});
+    var cat=item?item.category:'未知';
+    if(!catMap[cat])catMap[cat]={scores:[],total:0,sum:0};
+    catMap[cat].scores.push(entries[i].score);catMap[cat].total++;catMap[cat].sum+=entries[i].score;
+  }
+  var catList=['三星','四星','五星'].filter(function(c){return catMap[c]}).map(function(c){return{name:c,avg:Math.round(catMap[c].sum/catMap[c].total),total:catMap[c].total}});
+  var chMap={};
   for(var i=0;i<entries.length;i++){
     var e=entries[i];
-    var item=allData.find(function(a){return a.id===e._id});
+    var item=allData.find(function(a){return String(a.id)===e._id});
     var ch=item?item.chapter:'未知章节';
     if(!chMap[ch])chMap[ch]={scores:[],total:0,sum:0};
     chMap[ch].scores.push(e.score);chMap[ch].total++;chMap[ch].sum+=e.score;
-    var wk=e.lastCheckTime?getWeekNumber(e.lastCheckTime):getWeekNumber(Date.now());
-    if(!weekMap[wk])weekMap[wk]={scores:[],total:0,sum:0};
-    weekMap[wk].scores.push(e.score);weekMap[wk].total++;weekMap[wk].sum+=e.score;
   }
   var chList=Object.keys(chMap).map(function(c){return{name:c,avg:Math.round(chMap[c].sum/chMap[c].total),total:chMap[c].total}}).sort(function(a,b){return b.avg-a.avg});
-  var weekKeys=Object.keys(weekMap).sort();
-  var weekList=weekKeys.map(function(w){return{week:w,label:formatWeekLabel(w),avg:Math.round(weekMap[w].sum/weekMap[w].total),total:weekMap[w].total}});
-  return{total:total,avg:avg,max:maxS,min:minS,chapters:chList,weeks:weekList};
+  var chProgressMap={};
+  var allValid=allData.filter(function(i){return i&&i.id});
+  allValid.forEach(function(k){var ch=k.chapter||'未分类';if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0,items:[]};chProgressMap[ch].total++;chProgressMap[ch].items.push({id:k.id,title:k.title,category:k.category,count:0,bestScore:null,lastScore:null,lastTime:0})});
+  var practicedIdCount={};
+  var practicedIdScores={};
+  entries.forEach(function(e){var cnt=practicedIdCount[e._id]||0;practicedIdCount[e._id]=cnt+1;if(!practicedIdScores[e._id])practicedIdScores[e._id]=[];practicedIdScores[e._id].push(e.score);if(e.lastCheckTime>(practicedIdScores[e._id+'_last']||0))practicedIdScores[e._id+'_last']=e.lastCheckTime});
+  Object.keys(practicedIdCount).forEach(function(id){
+    var item=allValid.find(function(a){return String(a.id)===id});
+    if(!item)return;
+    var ch=item.chapter||'未分类';
+    if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0,items:[]};
+    chProgressMap[ch].practiced++;
+    chProgressMap[ch].practiceCount+=practicedIdCount[id];
+    var scores=practicedIdScores[id]||[];
+    scores.forEach(function(s){chProgressMap[ch].sumScore+=s});
+    var chItem=chProgressMap[ch].items.find(function(it){return String(it.id)===id});
+    if(chItem){chItem.count=practicedIdCount[id];chItem.bestScore=Math.max.apply(null,scores);chItem.lastScore=scores[scores.length-1];chItem.lastTime=practicedIdScores[id+'_last']||0}
+  });
+  var chProgress=Object.keys(chProgressMap).map(function(c){var p=chProgressMap[c];var practicedSum=p.practiced>0?Math.round(p.sumScore/p.practiceCount):0;p.items.sort(function(a,b){return b.count-a.count||b.lastTime-a.lastTime});return{name:c,total:p.total,practiced:p.practiced,unpracticed:p.total-p.practiced,practiceCount:p.practiceCount,avg:practicedSum,items:p.items}}).sort(function(a,b){return b.total-a.total});
+  var dayMap={};
+  var now=new Date();
+  for(var d=0;d<14;d++){
+    var dt=new Date(now);dt.setDate(dt.getDate()-d);dt.setHours(0,0,0,0);
+    var key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    dayMap[key]={scores:[],total:0,sum:0,label:String(dt.getMonth()+1)+'/'+String(dt.getDate())};
+  }
+  for(var i=0;i<entries.length;i++){
+    var t=entries[i].lastCheckTime||Date.now();
+    var dt=new Date(t);dt.setHours(0,0,0,0);
+    var key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    if(dayMap[key]){dayMap[key].scores.push(entries[i].score);dayMap[key].total++;dayMap[key].sum+=entries[i].score;}
+  }
+  var dayKeys=Object.keys(dayMap).sort();
+  var dayList=dayKeys.map(function(k){return{date:k,label:dayMap[k].label,avg:dayMap[k].total>0?Math.round(dayMap[k].sum/dayMap[k].total):0,total:dayMap[k].total}});
+  var sorted=[].concat(entries).sort(function(a,b){return (b.lastCheckTime||0)-(a.lastCheckTime||0)});
+  var recent=sorted.slice(0,15).map(function(e){
+    var item=allData.find(function(a){return String(a.id)===e._id});
+    return{title:item?item.title:'未知',chapter:item?item.chapter:'未知',score:e.score,time:e.lastCheckTime||0};
+  });
+  return{total:total,avg:avg,max:maxS,min:minS,todayCount:todayCount,todayAvg:todayAvg,todayMax:todayMax,distribution:bins,maxBinCount:maxBinCount,mastery:masteryLevels,practicedCount:practicedIds.length,totalKnowledge:allData.length,categories:catList,chapters:chList,chProgress:chProgress,days:dayList,recent:recent};
 }
 function renderStats(){
   var card=document.getElementById('card');
@@ -433,6 +763,15 @@ function renderStats(){
     return;
   }
   var h='';
+  if(stats.todayCount>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128197; 今日概览</div>';
+    h+='<div class="st-row">';
+    h+='<div class="st-cell"><div class="st-cell-val">'+stats.todayCount+'</div><div class="st-cell-lab">今日默写</div></div>';
+    h+='<div class="st-cell"><div class="st-cell-val" style="color:'+(stats.todayAvg>=80?'var(--accent)':stats.todayAvg>=60?'var(--warn)':'var(--err)')+'">'+stats.todayAvg+'%</div><div class="st-cell-lab">今日均分</div></div>';
+    h+='<div class="st-cell"><div class="st-cell-val">'+stats.todayMax+'</div><div class="st-cell-lab">今日最佳</div></div>';
+    h+='</div></div>';
+  }
   h+='<div class="st-card">';
   h+='<div class="st-title">&#128200; 总体概览</div>';
   h+='<div class="st-row">';
@@ -440,7 +779,101 @@ function renderStats(){
   h+='<div class="st-cell"><div class="st-cell-val" style="color:'+(stats.avg>=80?'var(--accent)':stats.avg>=60?'var(--warn)':'var(--err)')+'">'+stats.avg+'%</div><div class="st-cell-lab">平均正确率</div></div>';
   h+='<div class="st-cell"><div class="st-cell-val">'+stats.max+'</div><div class="st-cell-lab">最高分</div></div>';
   h+='<div class="st-cell"><div class="st-cell-val" style="color:var(--err)">'+stats.min+'</div><div class="st-cell-lab">最低分</div></div>';
-  h+='</div></div>';
+  h+='</div>';
+  h+='<div style="margin-top:10px;font-size:12px;color:var(--text2);text-align:center">已练习 <b style="color:var(--accent)">'+stats.practicedCount+'</b> / <b>'+stats.totalKnowledge+'</b> 个知识点（'+Math.round(stats.practicedCount/stats.totalKnowledge*100)+'%）</div>';
+  h+='</div>';
+  if(stats.chProgress&&stats.chProgress.length>0){
+    h+='<div class="cp-card">';
+    h+='<div class="st-title">&#128209; 章节默写进度</div>';
+    var totalAll=0,practicedAll=0,timesAll=0;
+    stats.chProgress.forEach(function(c){totalAll+=c.total;practicedAll+=c.practiced;timesAll+=c.practiceCount});
+    h+='<div style="margin-bottom:8px;font-size:12px;color:var(--text2);text-align:center">共 <b>'+totalAll+'</b> 题 · 已默写 <b style="color:var(--accent)">'+practicedAll+'</b> 题 · 未默写 <b style="color:var(--err)">'+(totalAll-practicedAll)+'</b> 题 · 累计默写 <b style="color:#1565c0">'+timesAll+'</b> 次</div>';
+    for(var i=0;i<stats.chProgress.length;i++){
+      var c=stats.chProgress[i];
+      var pct=c.total>0?Math.round(c.practiced/c.total*100):0;
+      var avgColor=c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)';
+      var barColor=c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)';
+      h+='<div class="cp-row" onclick="toggleChDetail('+i+')" style="cursor:pointer">';
+      h+='<span class="cp-toggle" id="cpToggle'+i+'">&#9654;</span>';
+      h+='<span class="cp-ch-name">'+esc(c.name)+'</span>';
+      h+='<div class="cp-progress"><span class="cp-num cp-practiced">'+c.practiced+'</span><span style="color:#bbb;font-size:10px">/</span><span class="cp-num cp-unpracticed">'+c.total+'</span></div>';
+      if(c.unpracticed>0){
+        h+='<span class="cp-num cp-unpracticed" style="font-size:11px;width:auto">未'+c.unpracticed+'</span>';
+      }
+      if(c.practiceCount>0){
+        h+='<span class="cp-times">'+c.practiceCount+'次</span>';
+      }
+      h+='<div class="cp-bar-wrap"><div class="cp-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div>';
+      if(c.practiceCount>0){
+        h+='<span class="cp-avg" style="color:'+avgColor+'">'+c.avg+'%</span>';
+      }else{
+        h+='<span class="cp-avg" style="color:#ccc">-</span>';
+      }
+      h+='</div>';
+      h+='<div class="cp-detail" id="cpDetail'+i+'" style="display:none">';
+      for(var j=0;j<c.items.length;j++){
+        var it=c.items[j];
+        var scoreColor=it.bestScore!==null?(it.bestScore>=80?'var(--accent)':it.bestScore>=60?'var(--warn)':'var(--err)'):'#ccc';
+        var catCls=it.category==='五星'?'qa-star-s5':it.category==='四星'?'qa-star-s4':'qa-star-s3';
+        h+='<div class="cp-detail-row">';
+        h+='<span class="qa-star-tag '+catCls+'" style="margin-right:4px">'+it.category+'</span>';
+        h+='<span class="cp-detail-title">'+esc(it.title)+'</span>';
+        if(it.count>0){
+          h+='<span class="cp-detail-count">'+it.count+'次</span>';
+          h+='<span class="cp-detail-score" style="color:'+scoreColor+'">'+it.bestScore+'分</span>';
+          h+='<span class="cp-detail-time">'+formatRelativeTime(it.lastTime)+'</span>';
+        }else{
+          h+='<span class="cp-detail-count" style="color:#ccc">未默写</span>';
+        }
+        h+='</div>';
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  if(stats.maxBinCount>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128202; 分数分布</div>';
+    for(var i=0;i<stats.distribution.length;i++){
+      var d=stats.distribution[i];
+      var pct=stats.maxBinCount>0?Math.round(d.count/stats.maxBinCount*100):0;
+      h+='<div class="st-dist-row">';
+      h+='<span class="st-dist-label">'+d.label+'</span>';
+      h+='<div class="st-dist-bar-wrap"><div class="st-dist-bar" style="width:'+pct+'%;background:'+d.color+'"></div></div>';
+      h+='<span class="st-dist-count">'+d.count+'</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  if(stats.practicedCount>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#127919; 掌握程度</div>';
+    for(var i=0;i<stats.mastery.length;i++){
+      var m=stats.mastery[i];
+      var pct=stats.practicedCount>0?Math.round(m.count/stats.practicedCount*100):0;
+      h+='<div class="st-mastery-row">';
+      h+='<span class="st-mastery-label">'+m.label+'</span>';
+      h+='<div class="st-mastery-bar-wrap"><div class="st-mastery-bar" style="width:'+(pct||1)+'%;background:'+m.color+'">'+(pct>15?pct+'%':'')+'</div></div>';
+      h+='<span class="st-mastery-count">'+m.count+'题</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  if(stats.categories.length>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#11088; 分类分析</div>';
+    for(var i=0;i<stats.categories.length;i++){
+      var c=stats.categories[i];
+      var tagCls=c.name==='五星'?'t5':c.name==='四星'?'t4':'t3';
+      var barCls=c.avg>=80?'':c.avg>=60?'mid':'low';
+      h+='<div class="st-cat-row">';
+      h+='<span class="tag '+tagCls+'">'+c.name+'</span>';
+      h+='<div class="st-cat-bar-wrap"><div class="st-cat-bar '+barCls+'" style="width:'+c.avg+'%"></div></div>';
+      h+='<span class="st-cat-pct" style="color:'+(c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)')+'">'+c.avg+'%</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
   if(stats.chapters.length>0){
     h+='<div class="st-card">';
     h+='<div class="st-title">&#128218; 章节正确率排名</div>';
@@ -461,28 +894,108 @@ function renderStats(){
     }
     h+='</div>';
   }
-  if(stats.weeks.length>0){
+  if(stats.days.length>0){
     h+='<div class="st-card">';
-    h+='<div class="st-title">&#128197; 每周趋势</div>';
-    var maxWeekAvg=0;
-    for(var i=0;i<stats.weeks.length;i++)maxWeekAvg=Math.max(maxWeekAvg,stats.weeks[i].avg);
-    if(maxWeekAvg<1)maxWeekAvg=100;
-    h+='<div class="st-week-wrap">';
-    for(var i=0;i<stats.weeks.length;i++){
-      var w=stats.weeks[i];
-      var barH=Math.round(w.avg/maxWeekAvg*80);
+    h+='<div class="st-title">&#128200; 每日趋势（近14天）</div>';
+    var maxDayAvg=0;
+    for(var i=0;i<stats.days.length;i++)maxDayAvg=Math.max(maxDayAvg,stats.days[i].avg);
+    if(maxDayAvg<1)maxDayAvg=100;
+    h+='<div class="st-day-wrap">';
+    for(var i=0;i<stats.days.length;i++){
+      var w=stats.days[i];
+      var barH=Math.round((w.avg||0)/maxDayAvg*70);
       var barCls=w.avg>=80?'':w.avg>=60?'mid':'low';
-      h+='<div class="st-week-col">';
-      h+='<div class="st-week-bar '+barCls+'" style="height:'+barH+'px"></div>';
-      h+='<span class="st-week-lab">'+w.label.replace('年第','<br>第')+'</span>';
-      h+='<span class="st-week-lab" style="font-weight:700">'+w.avg+'%</span>';
+      h+='<div class="st-day-col">';
+      h+='<div class="st-day-bar '+barCls+'" style="height:'+(barH||2)+'px"></div>';
+      h+='<span class="st-day-count">'+(w.total>0?w.total:'')+'</span>';
+      h+='<span class="st-day-lab">'+w.label+'</span>';
       h+='</div>';
     }
     h+='</div></div>';
   }
+  if(stats.recent.length>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128338; 最近默写记录</div>';
+    for(var i=0;i<stats.recent.length;i++){
+      var r=stats.recent[i];
+      var scoreCls=r.score>=80?'var(--accent)':r.score>=60?'var(--warn)':'var(--err)';
+      h+='<div class="st-rec-item">';
+      h+='<span class="st-rec-score" style="color:'+scoreCls+'">'+r.score+'分</span>';
+      h+='<div class="st-rec-info">';
+      h+='<div class="st-rec-title">'+esc(r.title)+'</div>';
+      h+='<div class="st-rec-meta">'+esc(r.chapter)+'</div>';
+      h+='</div>';
+      h+='<span class="st-rec-time">'+formatRelativeTime(r.time)+'</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
   card.innerHTML=h;
 }
-document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowRight')nextCard();if(e.key==='ArrowLeft')prevCard();if(e.key==='Enter'){if(mode===1)checkDict();else if(mode===0)toggleReveal()}if(e.key==='e'||e.key==='E')toggleEdit();if(e.key==='r'||e.key==='R')randomCard();if(e.key==='Tab'){e.preventDefault();switchMode(mode===0?1:mode===1?2:0)}});
+function renderQuestionAnalysis(){
+  var card=document.getElementById('card');
+  document.getElementById('pBar').style.width='0%';
+  document.getElementById('pText').textContent='题目分析';
+  document.getElementById('swH').textContent='';
+  var valid=allData.filter(function(i){return i&&i.id});
+  var total=valid.length;
+  var starCounts={'三星':0,'四星':0,'五星':0};
+  valid.forEach(function(k){if(starCounts[k.category]!==undefined)starCounts[k.category]++});
+  var chMap={};
+  valid.forEach(function(k){var c=k.chapter||'未分类';if(!chMap[c])chMap[c]={'三星':0,'四星':0,'五星':0,total:0};if(chMap[c][k.category]!==undefined)chMap[c][k.category]++;chMap[c].total++});
+  var chList=Object.keys(chMap).map(function(c){return{name:c,total:chMap[c].total,s3:chMap[c]['三星'],s4:chMap[c]['四星'],s5:chMap[c]['五星']}});
+  chList.sort(function(a,b){return b.total-a.total});
+  var h='';
+  h+='<div class="st-card">';
+  h+='<div class="st-title">&#128218; 题目总览</div>';
+  h+='<div class="qa-summary">';
+  h+='<div class="qa-sum-item"><div class="qa-sum-val" style="color:var(--accent)">'+total+'</div><div class="qa-sum-lab">总题数</div></div>';
+  h+='<div class="qa-sum-item"><div class="qa-sum-val" style="color:var(--text2)">'+starCounts['三星']+'</div><div class="qa-sum-lab">三星</div></div>';
+  h+='<div class="qa-sum-item"><div class="qa-sum-val" style="color:#1565c0">'+starCounts['四星']+'</div><div class="qa-sum-lab">四星</div></div>';
+  h+='<div class="qa-sum-item"><div class="qa-sum-val" style="color:var(--err)">'+starCounts['五星']+'</div><div class="qa-sum-lab">五星</div></div>';
+  h+='</div></div>';
+  if(chList.length>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#128200; 各章节题目分布</div>';
+    h+='<div class="qa-table">';
+    for(var i=0;i<chList.length;i++){
+      var c=chList[i];
+      h+='<div class="qa-row">';
+      h+='<span class="qa-ch-name">'+esc(c.name)+'</span>';
+      h+='<span class="qa-ch-count">'+c.total+'</span>';
+      h+='<div class="qa-stars">';
+      if(c.s3>0)h+='<span class="qa-star-tag qa-star-s3">三星 '+c.s3+'</span>';
+      if(c.s4>0)h+='<span class="qa-star-tag qa-star-s4">四星 '+c.s4+'</span>';
+      if(c.s5>0)h+='<span class="qa-star-tag qa-star-s5">五星 '+c.s5+'</span>';
+      h+='</div></div>';
+    }
+    h+='</div></div>';
+  }
+  if(total>0){
+    h+='<div class="st-card">';
+    h+='<div class="st-title">&#11088; 星级占比</div>';
+    var maxStar=Math.max(starCounts['三星'],starCounts['四星'],starCounts['五星']);
+    var starData=[
+      {name:'三星',count:starCounts['三星'],color:'#9e9e9e'},
+      {name:'四星',count:starCounts['四星'],color:'#2196f3'},
+      {name:'五星',count:starCounts['五星'],color:'#f44336'}
+    ];
+    for(var i=0;i<starData.length;i++){
+      var s=starData[i];
+      var pct=total>0?Math.round(s.count/total*100):0;
+      var barW=maxStar>0?Math.round(s.count/maxStar*100):0;
+      h+='<div class="st-dist-row">';
+      h+='<span class="st-dist-label" style="color:'+s.color+'">'+s.name+'</span>';
+      h+='<div class="st-dist-bar-wrap"><div class="st-dist-bar" style="width:'+barW+'%;background:'+s.color+'"></div></div>';
+      h+='<span class="st-dist-count">'+s.count+'</span>';
+      h+='<span style="font-size:11px;color:var(--text2);width:36px;text-align:right">'+pct+'%</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+  card.innerHTML=h;
+}
+document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowRight')nextCard();if(e.key==='ArrowLeft')prevCard();if(e.key==='Enter'){if(mode===1)checkDict();else if(mode===0)toggleReveal()}if(e.key==='e'||e.key==='E')toggleEdit();if(e.key==='r'||e.key==='R')randomCard();if(e.key==='Tab'){e.preventDefault();switchMode(mode===0?1:mode===1?2:mode===2?3:0)}});
 </script>
 </body>
 </html>
