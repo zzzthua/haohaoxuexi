@@ -187,6 +187,7 @@ textarea.ef{min-height:80px}
     <button class="hbtn" onclick="toggleAdd()" style="color:var(--accent);font-size:16px;line-height:1">+</button>
     <button class="hbtn" id="syncBtn" onclick="cloudSync()" style="color:var(--accent)">同步</button>
     <button class="hbtn" onclick="toggleExportMenu(event)">导出</button>
+    <button class="hbtn" id="fsBtn" onclick="toggleFullscreen()" style="font-size:14px;line-height:1;padding:8px 10px">&#9974;</button>
   </div>
 </div>
 <div class="mode-tabs">
@@ -996,6 +997,19 @@ function renderQuestionAnalysis(){
   card.innerHTML=h;
 }
 document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowRight')nextCard();if(e.key==='ArrowLeft')prevCard();if(e.key==='Enter'){if(mode===1)checkDict();else if(mode===0)toggleReveal()}if(e.key==='e'||e.key==='E')toggleEdit();if(e.key==='r'||e.key==='R')randomCard();if(e.key==='Tab'){e.preventDefault();switchMode(mode===0?1:mode===1?2:mode===2?3:0)}});
+function toggleFullscreen(){
+  var el=document.documentElement;
+  var isFs=document.fullscreenElement||document.webkitFullscreenElement||document.msFullscreenElement;
+  if(!isFs){
+    if(el.requestFullscreen)el.requestFullscreen();
+    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+    else if(el.msRequestFullscreen)el.msRequestFullscreen();
+  }else{
+    if(document.exitFullscreen)document.exitFullscreen();
+    else if(document.webkitExitFullscreen)document.webkitExitFullscreen();
+    else if(document.msExitFullscreen)document.msExitFullscreen();
+  }
+}
 </script>
 </body>
 </html>
