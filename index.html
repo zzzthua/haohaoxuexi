@@ -157,6 +157,18 @@ textarea.ef{min-height:80px}
 .qa-sum-item{text-align:center;padding:10px 14px;background:#f8f9fa;border-radius:8px;min-width:60px}
 .qa-sum-val{font-size:22px;font-weight:700}
 .qa-sum-lab{font-size:11px;color:var(--text2);margin-top:2px}
+.cp-card{background:var(--card);border-radius:var(--rl);padding:14px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.cp-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+.cp-row:last-child{border-bottom:none}
+.cp-ch-name{flex:1;font-weight:600;color:var(--text);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.cp-progress{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.cp-num{font-weight:700;font-size:13px;min-width:24px;text-align:center}
+.cp-practiced{color:var(--accent)}
+.cp-unpracticed{color:var(--text2)}
+.cp-times{color:#1565c0;font-size:11px}
+.cp-avg{width:42px;text-align:right;font-weight:700;flex-shrink:0;font-size:13px}
+.cp-bar-wrap{width:60px;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;flex-shrink:0}
+.cp-bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s}
 </style>
 </head>
 <body>
@@ -690,6 +702,22 @@ function calcStats(){
     chMap[ch].scores.push(e.score);chMap[ch].total++;chMap[ch].sum+=e.score;
   }
   var chList=Object.keys(chMap).map(function(c){return{name:c,avg:Math.round(chMap[c].sum/chMap[c].total),total:chMap[c].total}}).sort(function(a,b){return b.avg-a.avg});
+  var chProgressMap={};
+  var allValid=allData.filter(function(i){return i&&i.id});
+  allValid.forEach(function(k){var ch=k.chapter||'未分类';if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0};chProgressMap[ch].total++});
+  var practicedIdCount={};
+  entries.forEach(function(e){var cnt=practicedIdCount[e._id]||0;practicedIdCount[e._id]=cnt+1});
+  Object.keys(practicedIdCount).forEach(function(id){
+    var item=allValid.find(function(a){return String(a.id)===id});
+    if(!item)return;
+    var ch=item.chapter||'未分类';
+    if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0};
+    chProgressMap[ch].practiced++;
+    chProgressMap[ch].practiceCount+=practicedIdCount[id];
+    var entry=entries.filter(function(e){return e._id===id});
+    entry.forEach(function(en){chProgressMap[ch].sumScore+=en.score});
+  });
+  var chProgress=Object.keys(chProgressMap).map(function(c){var p=chProgressMap[c];var practicedSum=p.practiced>0?Math.round(p.sumScore/p.practiceCount):0;return{name:c,total:p.total,practiced:p.practiced,unpracticed:p.total-p.practiced,practiceCount:p.practiceCount,avg:practicedSum}}).sort(function(a,b){return b.total-a.total});
   var dayMap={};
   var now=new Date();
   for(var d=0;d<14;d++){
@@ -710,7 +738,7 @@ function calcStats(){
     var item=allData.find(function(a){return String(a.id)===e._id});
     return{title:item?item.title:'未知',chapter:item?item.chapter:'未知',score:e.score,time:e.lastCheckTime||0};
   });
-  return{total:total,avg:avg,max:maxS,min:minS,todayCount:todayCount,todayAvg:todayAvg,todayMax:todayMax,distribution:bins,maxBinCount:maxBinCount,mastery:masteryLevels,practicedCount:practicedIds.length,totalKnowledge:allData.length,categories:catList,chapters:chList,days:dayList,recent:recent};
+  return{total:total,avg:avg,max:maxS,min:minS,todayCount:todayCount,todayAvg:todayAvg,todayMax:todayMax,distribution:bins,maxBinCount:maxBinCount,mastery:masteryLevels,practicedCount:practicedIds.length,totalKnowledge:allData.length,categories:catList,chapters:chList,chProgress:chProgress,days:dayList,recent:recent};
 }
 function renderStats(){
   var card=document.getElementById('card');
@@ -742,6 +770,36 @@ function renderStats(){
   h+='</div>';
   h+='<div style="margin-top:10px;font-size:12px;color:var(--text2);text-align:center">已练习 <b style="color:var(--accent)">'+stats.practicedCount+'</b> / <b>'+stats.totalKnowledge+'</b> 个知识点（'+Math.round(stats.practicedCount/stats.totalKnowledge*100)+'%）</div>';
   h+='</div>';
+  if(stats.chProgress&&stats.chProgress.length>0){
+    h+='<div class="cp-card">';
+    h+='<div class="st-title">&#128209; 章节默写进度</div>';
+    var totalAll=0,practicedAll=0,timesAll=0;
+    stats.chProgress.forEach(function(c){totalAll+=c.total;practicedAll+=c.practiced;timesAll+=c.practiceCount});
+    h+='<div style="margin-bottom:8px;font-size:12px;color:var(--text2);text-align:center">共 <b>'+totalAll+'</b> 题 · 已默写 <b style="color:var(--accent)">'+practicedAll+'</b> 题 · 未默写 <b style="color:var(--err)">'+(totalAll-practicedAll)+'</b> 题 · 累计默写 <b style="color:#1565c0">'+timesAll+'</b> 次</div>';
+    for(var i=0;i<stats.chProgress.length;i++){
+      var c=stats.chProgress[i];
+      var pct=c.total>0?Math.round(c.practiced/c.total*100):0;
+      var avgColor=c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)';
+      var barColor=c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)';
+      h+='<div class="cp-row">';
+      h+='<span class="cp-ch-name">'+esc(c.name)+'</span>';
+      h+='<div class="cp-progress"><span class="cp-num cp-practiced">'+c.practiced+'</span><span style="color:#bbb;font-size:10px">/</span><span class="cp-num cp-unpracticed">'+c.total+'</span></div>';
+      if(c.unpracticed>0){
+        h+='<span class="cp-num cp-unpracticed" style="font-size:11px;width:auto">未'+c.unpracticed+'</span>';
+      }
+      if(c.practiceCount>0){
+        h+='<span class="cp-times">'+c.practiceCount+'次</span>';
+      }
+      h+='<div class="cp-bar-wrap"><div class="cp-bar-fill" style="width:'+pct+'%;background:'+barColor+'"></div></div>';
+      if(c.practiceCount>0){
+        h+='<span class="cp-avg" style="color:'+avgColor+'">'+c.avg+'%</span>';
+      }else{
+        h+='<span class="cp-avg" style="color:#ccc">-</span>';
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  }
   if(stats.maxBinCount>0){
     h+='<div class="st-card">';
     h+='<div class="st-title">&#128202; 分数分布</div>';
