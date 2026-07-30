@@ -169,6 +169,14 @@ textarea.ef{min-height:80px}
 .cp-avg{width:42px;text-align:right;font-weight:700;flex-shrink:0;font-size:13px}
 .cp-bar-wrap{width:60px;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;flex-shrink:0}
 .cp-bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s}
+.cp-toggle{font-size:10px;color:var(--text2);width:14px;text-align:center;flex-shrink:0;cursor:pointer;transition:transform .2s}
+.cp-detail{background:#f8f9fa;border-radius:8px;margin:0 0 6px 0;padding:6px 8px}
+.cp-detail-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #eee;font-size:12px}
+.cp-detail-row:last-child{border-bottom:none}
+.cp-detail-title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.cp-detail-count{font-size:11px;color:var(--text2);font-weight:600;flex-shrink:0;white-space:nowrap}
+.cp-detail-score{font-size:13px;font-weight:700;flex-shrink:0;width:40px;text-align:right}
+.cp-detail-time{font-size:10px;color:#bbb;flex-shrink:0;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -357,6 +365,7 @@ function render(){var card=document.getElementById('card');if(adding){renderAddF
 function renderRecite(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var h='<div class="tags">';h+='<span class="tag '+cc+'" onclick="toggleEdit()">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';h+='<button class="abtn'+(revealed?' rev':'')+'" onclick="toggleReveal()">'+(revealed?'收起答案':'查看答案')+'</button>';if(revealed){h+=formatAnswerList(item.content)}card.innerHTML=h}
 function toggleReveal(){revealed=!revealed;render()}
 function toggleMn(){mnRevealed=!mnRevealed;render()}
+function toggleChDetail(i){var d=document.getElementById('cpDetail'+i);var t=document.getElementById('cpToggle'+i);if(!d)return;var open=d.style.display!=='none';d.style.display=open?'none':'block';if(t)t.innerHTML=open?'&#9654;':'&#9660;'}
 function formatAnswerList(content){
   if(!content)return '<div style="color:#bbb;font-size:17px">暂无答案</div>';
   var normalized=content.replace(/（(\d+)）/g,'($1)').replace(/(\d+)[、.]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});
@@ -704,20 +713,23 @@ function calcStats(){
   var chList=Object.keys(chMap).map(function(c){return{name:c,avg:Math.round(chMap[c].sum/chMap[c].total),total:chMap[c].total}}).sort(function(a,b){return b.avg-a.avg});
   var chProgressMap={};
   var allValid=allData.filter(function(i){return i&&i.id});
-  allValid.forEach(function(k){var ch=k.chapter||'未分类';if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0};chProgressMap[ch].total++});
+  allValid.forEach(function(k){var ch=k.chapter||'未分类';if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0,items:[]};chProgressMap[ch].items.push({id:k.id,title:k.title,category:k.category,count:0,bestScore:null,lastScore:null,lastTime:0})});
   var practicedIdCount={};
-  entries.forEach(function(e){var cnt=practicedIdCount[e._id]||0;practicedIdCount[e._id]=cnt+1});
+  var practicedIdScores={};
+  entries.forEach(function(e){var cnt=practicedIdCount[e._id]||0;practicedIdCount[e._id]=cnt+1;if(!practicedIdScores[e._id])practicedIdScores[e._id]=[];practicedIdScores[e._id].push(e.score);if(e.lastCheckTime>(practicedIdScores[e._id+'_last']||0))practicedIdScores[e._id+'_last']=e.lastCheckTime});
   Object.keys(practicedIdCount).forEach(function(id){
     var item=allValid.find(function(a){return String(a.id)===id});
     if(!item)return;
     var ch=item.chapter||'未分类';
-    if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0};
+    if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0,items:[]};
     chProgressMap[ch].practiced++;
     chProgressMap[ch].practiceCount+=practicedIdCount[id];
-    var entry=entries.filter(function(e){return e._id===id});
-    entry.forEach(function(en){chProgressMap[ch].sumScore+=en.score});
+    var scores=practicedIdScores[id]||[];
+    scores.forEach(function(s){chProgressMap[ch].sumScore+=s});
+    var chItem=chProgressMap[ch].items.find(function(it){return String(it.id)===id});
+    if(chItem){chItem.count=practicedIdCount[id];chItem.bestScore=Math.max.apply(null,scores);chItem.lastScore=scores[scores.length-1];chItem.lastTime=practicedIdScores[id+'_last']||0}
   });
-  var chProgress=Object.keys(chProgressMap).map(function(c){var p=chProgressMap[c];var practicedSum=p.practiced>0?Math.round(p.sumScore/p.practiceCount):0;return{name:c,total:p.total,practiced:p.practiced,unpracticed:p.total-p.practiced,practiceCount:p.practiceCount,avg:practicedSum}}).sort(function(a,b){return b.total-a.total});
+  var chProgress=Object.keys(chProgressMap).map(function(c){var p=chProgressMap[c];var practicedSum=p.practiced>0?Math.round(p.sumScore/p.practiceCount):0;p.items.sort(function(a,b){return b.count-a.count||b.lastTime-a.lastTime});return{name:c,total:p.total,practiced:p.practiced,unpracticed:p.total-p.practiced,practiceCount:p.practiceCount,avg:practicedSum,items:p.items}}).sort(function(a,b){return b.total-a.total});
   var dayMap={};
   var now=new Date();
   for(var d=0;d<14;d++){
@@ -781,7 +793,8 @@ function renderStats(){
       var pct=c.total>0?Math.round(c.practiced/c.total*100):0;
       var avgColor=c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)';
       var barColor=c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)';
-      h+='<div class="cp-row">';
+      h+='<div class="cp-row" onclick="toggleChDetail('+i+')" style="cursor:pointer">';
+      h+='<span class="cp-toggle" id="cpToggle'+i+'">&#9654;</span>';
       h+='<span class="cp-ch-name">'+esc(c.name)+'</span>';
       h+='<div class="cp-progress"><span class="cp-num cp-practiced">'+c.practiced+'</span><span style="color:#bbb;font-size:10px">/</span><span class="cp-num cp-unpracticed">'+c.total+'</span></div>';
       if(c.unpracticed>0){
@@ -795,6 +808,24 @@ function renderStats(){
         h+='<span class="cp-avg" style="color:'+avgColor+'">'+c.avg+'%</span>';
       }else{
         h+='<span class="cp-avg" style="color:#ccc">-</span>';
+      }
+      h+='</div>';
+      h+='<div class="cp-detail" id="cpDetail'+i+'" style="display:none">';
+      for(var j=0;j<c.items.length;j++){
+        var it=c.items[j];
+        var scoreColor=it.bestScore!==null?(it.bestScore>=80?'var(--accent)':it.bestScore>=60?'var(--warn)':'var(--err)'):'#ccc';
+        var catCls=it.category==='五星'?'qa-star-s5':it.category==='四星'?'qa-star-s4':'qa-star-s3';
+        h+='<div class="cp-detail-row">';
+        h+='<span class="qa-star-tag '+catCls+'" style="margin-right:4px">'+it.category+'</span>';
+        h+='<span class="cp-detail-title">'+esc(it.title)+'</span>';
+        if(it.count>0){
+          h+='<span class="cp-detail-count">'+it.count+'次</span>';
+          h+='<span class="cp-detail-score" style="color:'+scoreColor+'">'+it.bestScore+'分</span>';
+          h+='<span class="cp-detail-time">'+formatRelativeTime(it.lastTime)+'</span>';
+        }else{
+          h+='<span class="cp-detail-count" style="color:#ccc">未默写</span>';
+        }
+        h+='</div>';
       }
       h+='</div>';
     }
