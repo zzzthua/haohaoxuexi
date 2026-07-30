@@ -558,8 +558,9 @@ function mergeKnowledge(local,cloud){
   var cloudById={},localById={};
   ck.forEach(function(k){cloudById[k.id]=k});
   lk.forEach(function(k){localById[k.id]=k});
-  var allIds=Object.keys(cloudById).map(Number).concat(Object.keys(localById).map(Number).filter(function(id){return!cloudById[id]}));
-  allIds.sort(function(a,b){return a-b});
+  var allIds=Object.keys(cloudById);
+  Object.keys(localById).forEach(function(id){if(!cloudById[id])allIds.push(id)});
+  allIds.sort(function(a,b){var na=Number(a),nb=Number(b);if(!isNaN(na)&&!isNaN(nb))return na-nb;return String(a).localeCompare(String(b))});
   var merged=allIds.map(function(id){
     var cl=cloudById[id],lo=localById[id];
     if(!cl)return lo;
