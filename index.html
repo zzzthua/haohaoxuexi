@@ -788,11 +788,12 @@ function calcStats(){
     chProgressMap[ch].practiced++;
     chProgressMap[ch].practiceCount+=practicedIdCount[id];
     var scores=practicedIdScores[id]||[];
-    scores.forEach(function(s){chProgressMap[ch].sumScore+=s});
+    var bestScore=Math.max.apply(null,scores);
+    chProgressMap[ch].sumScore+=bestScore;
     var chItem=chProgressMap[ch].items.find(function(it){return String(it.id)===id});
-    if(chItem){chItem.count=practicedIdCount[id];chItem.bestScore=Math.max.apply(null,scores);chItem.lastScore=scores[scores.length-1];chItem.lastTime=practicedIdScores[id+'_last']||0}
+    if(chItem){chItem.count=practicedIdCount[id];chItem.bestScore=bestScore;chItem.lastScore=scores[scores.length-1];chItem.lastTime=practicedIdScores[id+'_last']||0}
   });
-  var chProgress=Object.keys(chProgressMap).map(function(c){var p=chProgressMap[c];var practicedSum=p.practiced>0?Math.round(p.sumScore/p.practiceCount):0;p.items.sort(function(a,b){return b.count-a.count||b.lastTime-a.lastTime});return{name:c,total:p.total,practiced:p.practiced,unpracticed:p.total-p.practiced,practiceCount:p.practiceCount,avg:practicedSum,items:p.items}}).sort(function(a,b){var na=parseInt(a.name.replace(/[^0-9]/g,''),10)||0;var nb=parseInt(b.name.replace(/[^0-9]/g,''),10)||0;if(na!==nb)return na-nb;return a.name.localeCompare(b.name)});
+  var chProgress=Object.keys(chProgressMap).map(function(c){var p=chProgressMap[c];var practicedSum=p.practiced>0?Math.round(p.sumScore/p.practiced):0;p.items.sort(function(a,b){return b.count-a.count||b.lastTime-a.lastTime});return{name:c,total:p.total,practiced:p.practiced,unpracticed:p.total-p.practiced,practiceCount:p.practiceCount,avg:practicedSum,items:p.items}}).sort(function(a,b){var na=parseInt(a.name.replace(/[^0-9]/g,''),10)||0;var nb=parseInt(b.name.replace(/[^0-9]/g,''),10)||0;if(na!==nb)return na-nb;return a.name.localeCompare(b.name)});
   var dayMap={};
   var now=new Date();
   for(var d=0;d<14;d++){
