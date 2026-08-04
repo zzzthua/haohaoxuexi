@@ -72,6 +72,13 @@ textarea.ef{min-height:80px}
 .abtn.rev{background:var(--accent);color:#fff}
 .abtn.check{background:#ff9800;color:#fff}
 .abtn.check:active{background:#e68900}
+.dict-toggle-row{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-bottom:6px;font-size:12px;color:var(--text2)}
+.dt-switch{position:relative;width:34px;height:18px;flex-shrink:0;cursor:pointer}
+.dt-switch input{opacity:0;width:0;height:0;position:absolute}
+.dt-slider{position:absolute;inset:0;background:#ccc;border-radius:9px;transition:.3s}
+.dt-slider:before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.3s}
+.dt-switch input:checked+.dt-slider{background:var(--accent)}
+.dt-switch input:checked+.dt-slider:before{transform:translateX(16px)}
 .acontent{margin-top:6px;font-size:15px;line-height:1.8;white-space:pre-wrap;word-break:break-all;animation:fadeIn .3s}
 .ans-list{margin-top:6px;animation:fadeIn .3s}
 .ans-item{font-size:17px;line-height:1.9;margin-bottom:4px;display:flex;gap:8px;align-items:flex-start;word-break:break-all}
@@ -137,12 +144,17 @@ textarea.ef{min-height:80px}
 .st-cat-bar{height:100%;border-radius:4px;transition:width .5s;background:var(--accent)}
 .st-cat-bar.mid{background:var(--warn)}.st-cat-bar.low{background:var(--err)}
 .st-cat-pct{width:42px;text-align:right;font-weight:700;flex-shrink:0}
-.st-day-wrap{display:flex;align-items:flex-end;gap:3px;height:80px;padding:6px 0}
-.st-day-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
-.st-day-bar{width:100%;border-radius:2px 2px 0 0;background:var(--accent);min-height:2px;transition:height .4s}
+.st-day-wrap{display:flex;align-items:flex-end;gap:3px;padding:6px 0}
+.st-day-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.st-day-avg{font-size:9px;font-weight:700;line-height:1.2;white-space:nowrap;min-height:11px}
+.st-day-bar-area{width:100%;height:55px;display:flex;align-items:flex-end}
+.st-day-bar{width:100%;border-radius:2px 2px 0 0;background:var(--accent);min-height:3px;transition:height .4s}
 .st-day-bar.low{background:var(--err)}.st-day-bar.mid{background:var(--warn)}
-.st-day-lab{font-size:9px;color:var(--text2);white-space:nowrap}
-.st-day-count{font-size:9px;font-weight:700;color:var(--text2)}
+.st-day-lab{font-size:9px;color:var(--text2);white-space:nowrap;line-height:1.2}
+.st-day-count{font-size:8px;color:var(--text2);line-height:1.2;min-height:10px}
+.st-day-legend{display:flex;gap:12px;font-size:10px;color:var(--text2);margin-bottom:6px;flex-wrap:wrap}
+.st-day-legend-item{display:flex;align-items:center;gap:3px}
+.st-day-legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block}
 .qa-table{width:100%;font-size:12px;border-collapse:collapse;margin-top:6px}
 .qa-row{display:flex;align-items:center;padding:8px 4px;border-bottom:1px solid #f0f0f0;gap:8px}
 .qa-row:last-child{border-bottom:none}
@@ -282,6 +294,8 @@ var allData,chapters,filtered,idx=0,mode=0,editing=false,adding=false,revealed=t
 var dictState={};
 var mnRevealed=true;
 var _animLock=false;
+var hidePrevAnswer=false;
+var justChecked=false;
 function init(){
   try{
     var ver=localStorage.getItem('hxx_ver');
@@ -361,7 +375,7 @@ function slimDict(d){
 }
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
 function populateChSel(){var sel=document.getElementById('chSel');var opts=[];for(var i=0;i<sel.options.length;i++)opts.push(sel.options[i].value);chapters.forEach(function(c){if(opts.indexOf(c)===-1){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)}});sel.onchange=function(){filterCh(sel.value)}}
-function filterCh(c){filtered=c==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===c});idx=0;if(editing)toggleEdit();if(adding)toggleAdd();render()}
+function filterCh(c){filtered=c==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===c});idx=0;justChecked=false;if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);document.getElementById('tab2').classList.toggle('active',m===2);document.getElementById('tab3').classList.toggle('active',m===3);if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function progress(c,t){document.getElementById('pBar').style.width=(t>0?c/t*100:0)+'%';document.getElementById('pText').textContent=c+' / '+t}
 function getItem(){return filtered.length>0?filtered[idx]:null}
@@ -391,7 +405,7 @@ function formatAnswerList(content){
   }
   return '<div class="acontent" style="font-size:17px;line-height:1.9">'+esc(content)+'</div>';
 }
-function renderDictate(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var ds=ensureDict(item);var h='<div class="tags">';h+='<span class="tag '+cc+'">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';if(!ds.checked){h+='<div class="fld"><div class="fld-label">你的默写答案</div>';h+='<textarea class="dict-area" id="dictInput" placeholder="在此默写答案..." oninput="onDictInput()">'+esc(ds.input)+'</textarea></div>';h+='<button class="abtn check" onclick="checkDict()">提交校核</button>'}else{h+=renderCheckResult(item,ds)}card.innerHTML=h;var ta=document.getElementById('dictInput');if(ta){ta.focus();ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}}
+function renderDictate(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var ds=ensureDict(item);var h='<div class="tags">';h+='<span class="tag '+cc+'">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';h+='<div class="dict-toggle-row"><span>隐藏上次默写</span><label class="dt-switch"><input type="checkbox" '+(hidePrevAnswer?'checked':'')+' onchange="toggleHidePrev(this.checked)"><span class="dt-slider"></span></label></div>';var showResult=ds.checked&&(!hidePrevAnswer||justChecked);if(!showResult){h+='<div class="fld"><div class="fld-label">你的默写答案</div>';h+='<textarea class="dict-area" id="dictInput" placeholder="在此默写答案..." oninput="onDictInput()">'+(hidePrevAnswer?'':esc(ds.input))+'</textarea></div>';h+='<button class="abtn check" onclick="checkDict()">提交校核</button>'}else{h+=renderCheckResult(item,ds)}card.innerHTML=h;var ta=document.getElementById('dictInput');if(ta){ta.focus();ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}}
 function onDictInput(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=ensureDict(item);ds.input=ta.value;ds.checked=false;ds.score=null;saveDict()}
 function normalizeText(t){t=t.replace(/[\s\n\r\t]+/g,'');t=t.replace(/\uff08/g,'(').replace(/\uff09/g,')');t=t.replace(/\uff0c/g,',').replace(/\u3002/g,'.').replace(/\u3001/g,',');t=t.replace(/\uff1b/g,';').replace(/\uff1a/g,':').replace(/\uff01/g,'!').replace(/\uff1f/g,'?');t=t.replace(/\u201c/g,'"').replace(/\u201d/g,'"');t=t.replace(/\u2018/g,"'" ).replace(/\u2019/g,"'" );t=t.replace(/\u3010/g,'[').replace(/\u3011/g,']');t=t.replace(/\u300a/g,'').replace(/\u300b/g,'');return t.toLowerCase()}
 function normalizeSynonyms(t){
@@ -441,9 +455,10 @@ function fuzzyMatch(correctStr,userStr){
   var sim=textSimilarity(cs,us);
   return sim>=80;
 }
-function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');if(!ta)return;var ds=ensureDict(item);ds.input=ta.value;ds.checked=true;ds.lastCheckTime=Date.now();ds.count=(ds.count||0)+1;ds.history=ds.history||[];var correct=normalizeText(item.content||'');var userRaw=ds.input||'';function extractItems(text){if(!text)return[];var n=text.replace(/[\(（](\d+)[\)）]/g,'($1)').replace(/(\d+)[,.。、]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0}).map(function(x){var s=x.replace(/^\(\d+\)/,'').trim();s=s.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return s.replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}if(m&&m.length===1){var single=m[0].replace(/^\(\d+\)/,'').trim();var words=single.split(/[\s]+/).filter(function(x){return x.trim().length>0});if(words.length>1&&words.every(function(w){return w.replace(/[^\w\u4e00-\u9fa5]/g,'').length<=8})){return words.map(function(w){return w.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()})}}var s=text.split(/[,.。、]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s.map(function(x){var t=x.trim();t=t.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return t.replace(/[。.,,；;！!？?：:、]+$/,'').trim()});return [text.trim().replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()]}function extractUserItems(raw){var parts=raw.split(/[\n\r]+/);if(parts.length<=1){parts=raw.split(/[ ]+/)}return parts.map(function(p){return p.trim()}).filter(function(p){return p.length>0}).map(function(p){return p.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}var correctItems=extractItems(correct);var userItems=extractUserItems(userRaw).map(function(u){return normalizeText(u)});var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=userItems[j].replace(/^\(\d+\)/,'');if(fuzzyMatch(cn,un)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(normalizeText(userRaw)===correct?100:0);ds.score=score;ds.history.push({score:score,time:ds.lastCheckTime});ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;saveDict();render();toast('校核完成：'+score+'分')}
+function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');if(!ta)return;var ds=ensureDict(item);ds.input=ta.value;ds.checked=true;ds.lastCheckTime=Date.now();ds.count=(ds.count||0)+1;ds.history=ds.history||[];var correct=normalizeText(item.content||'');var userRaw=ds.input||'';function extractItems(text){if(!text)return[];var n=text.replace(/[\(（](\d+)[\)）]/g,'($1)').replace(/(\d+)[,.。、]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0}).map(function(x){var s=x.replace(/^\(\d+\)/,'').trim();s=s.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return s.replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}if(m&&m.length===1){var single=m[0].replace(/^\(\d+\)/,'').trim();var words=single.split(/[\s]+/).filter(function(x){return x.trim().length>0});if(words.length>1&&words.every(function(w){return w.replace(/[^\w\u4e00-\u9fa5]/g,'').length<=8})){return words.map(function(w){return w.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()})}}var s=text.split(/[,.。、]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s.map(function(x){var t=x.trim();t=t.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return t.replace(/[。.,,；;！!？?：:、]+$/,'').trim()});return [text.trim().replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()]}function extractUserItems(raw){var parts=raw.split(/[\n\r]+/);if(parts.length<=1){parts=raw.split(/[ ]+/)}return parts.map(function(p){return p.trim()}).filter(function(p){return p.length>0}).map(function(p){return p.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}var correctItems=extractItems(correct);var userItems=extractUserItems(userRaw).map(function(u){return normalizeText(u)});var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=userItems[j].replace(/^\(\d+\)/,'');if(fuzzyMatch(cn,un)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(normalizeText(userRaw)===correct?100:0);ds.score=score;ds.history.push({score:score,time:ds.lastCheckTime});ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;justChecked=true;saveDict();render();toast('校核完成：'+score+'分')}
 function renderCheckResult(item,ds){var h='<div class="check-result">';var cls=ds.score>=80?'perfect':ds.score>=40?'partial':'miss';var label=ds.score>=80?'掌握良好':ds.score>=40?'部分正确':'需要加强';h+='<div class="check-header '+cls+'"><span>校核结果</span><span>'+ds.score+'分 - '+label+'</span></div>';h+='<div class="check-body" style="background:#f5f5f5"><div style="font-weight:600;color:var(--text2);margin-bottom:4px">你的答案：</div><div>'+(esc(ds.input)||'<span style="color:#bbb">（未填写）</span>')+'</div></div>';h+='<div class="check-body"><div style="font-weight:600;color:var(--accent);margin-bottom:4px">正确答案：</div><div>'+esc(item.content||'暂无答案')+'</div></div>';if(ds.correctItems&&ds.correctItems.length>0){h+='<div class="check-body" style="font-size:13px;line-height:2"><div style="font-weight:600;margin-bottom:4px">逐条对比：</div>';var used=[];for(var i=0;i<ds.correctItems.length;i++){var ci=ds.correctItems[i].replace(/^\(\d+\)/,'').trim();var isMatch=ds.matchedIndices&&ds.matchedIndices.indexOf(i)!==-1;var matchIdx=-1;if(isMatch){var cni=normalizeText(ci);for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=normalizeText(ds.userItems[j].replace(/^\(\d+\)/,''));if(fuzzyMatch(cni,uj)){matchIdx=j;used.push(j);break}}}var ui=matchIdx>=0?ds.userItems[matchIdx].replace(/^\(\d+\)/,'').trim():'';h+='<div style="margin-bottom:4px"><span style="color:var(--text2)">('+(i+1)+') </span>';h+=isMatch?'<span class="correct-line">&#10003; '+esc(ci)+'</span>':'<span class="missed-line">&#10007; '+esc(ci)+'</span>';if(!isMatch&&ui)h+='<br><span class="extra-line">你的回答：'+esc(ui)+'</span>';h+='</div>'}for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=ds.userItems[j].replace(/^\(\d+\)/,'').trim();if(uj.length>0)h+='<div style="margin-bottom:4px"><span class="extra-line">&#9654; 多余项：'+esc(uj)+'</span></div>'}h+='</div>'}h+='<div style="padding:6px 10px"><button class="abtn" style="background:#e3f2fd;color:#1565c0" onclick="retryDict()">重新默写</button></div></div>';return h}
-function retryDict(){var item=getItem();if(!item)return;var ds=ensureDict(item);ds.checked=false;ds.score=null;ds.input='';saveDict();render()}
+function retryDict(){var item=getItem();if(!item)return;var ds=ensureDict(item);ds.checked=false;ds.score=null;ds.input='';justChecked=false;saveDict();render()}
+function toggleHidePrev(v){hidePrevAnswer=v;justChecked=false;render()}
 function renderEdit(item){var chOpts='';chapters.forEach(function(c){chOpts+='<option value="'+esc(c)+'"'+(item.chapter===c?' selected':'')+'>'+esc(c)+'</option>'});var h='<div class="tags"><span class="tag tch" style="font-size:12px">编辑模式</span></div>';h+='<div class="fld"><div class="fld-label">问题标题</div><input class="ef big" id="eTitle" value="'+ea(item.title)+'"></div>';h+='<div class="fld"><div class="fld-label">所属章节</div><select class="ef" id="eChapter" style="appearance:auto">'+chOpts+'</select></div>';h+='<div class="fld"><div class="fld-label">星级分类</div><div class="star-sel">';['三星','四星','五星'].forEach(function(s){var c=s==='五星'?'so5':s==='四星'?'so4':'so3';h+='<div class="star-opt '+c+(item.category===s?' on':'')+'" onclick="setCat(\''+s+'\')">'+s+'</div>'});h+='</div><input type="hidden" id="eCat" value="'+ea(item.category)+'"></div>';h+='<div class="fld"><div class="fld-label">答案内容</div><textarea class="ef" id="eContent" rows="5">'+esc(item.content||'')+'</textarea></div>';h+='<div class="fld"><div class="fld-label">记忆口诀</div><input class="ef mn" id="eMn" value="'+ea(item.mnemonic||'')+'" placeholder="输入助记口诀"></div>';var curAi=allData.indexOf(item);var fi=filtered.indexOf(item);var sel=cSelVal();var isFiltered=sel!=='all';var posLabel=isFiltered?'本章第 '+(fi+1)+'/'+filtered.length+' 题':'全部第 '+(curAi+1)+'/'+allData.length+' 题';var inputMax=isFiltered?filtered.length:allData.length;var inputVal=isFiltered?(fi+1):(curAi+1);h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="background:var(--accent);color:#fff;flex:2" onclick="saveEdit()">&#10003; 保存</button><button class="btn" style="background:#f5f5f5;color:var(--text2);flex:1" onclick="toggleEdit()">取消</button></div>';h+='<div class="fld" style="margin-top:8px"><div class="fld-label">调整序号（'+posLabel+'）</div><div style="display:flex;gap:8px"><input class="ef" id="ePos" type="number" min="1" max="'+inputMax+'" value="'+inputVal+'" style="flex:1;text-align:center"><button class="btn" style="background:#e3f2fd;color:#1565c0;flex:1" onclick="moveTo()">移动到目标序号</button></div></div>';h+='<div style="margin-top:10px"><button class="btn" style="width:100%;background:#ffebee;color:var(--err);border:1px solid #ffcdd2;padding:10px" onclick="deleteItem()">&#128465; 删除该知识点</button></div>';document.getElementById('card').innerHTML=h}
 function toggleEdit(){editing=!editing;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);if(editing)adding=false;render()}
 function toggleAdd(){adding=!adding;if(adding&&editing)editing=false;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);render()}
@@ -483,9 +498,9 @@ function moveTo(){
   render();toast('已移至第'+targetPos+'位');
 }
 function cSelVal(){return document.getElementById('chSel').value}
-function nextCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();idx=(idx+1)%filtered.length;anim('l')}
-function prevCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();idx=(idx-1+filtered.length)%filtered.length;anim('r')}
-function randomCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();var n;do{n=Math.floor(Math.random()*filtered.length)}while(filtered.length>1&&n===idx);idx=n;anim('l')}
+function nextCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();justChecked=false;idx=(idx+1)%filtered.length;anim('l')}
+function prevCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();justChecked=false;idx=(idx-1+filtered.length)%filtered.length;anim('r')}
+function randomCard(){if(!filtered.length||adding||_animLock)return;if(editing)saveEdit();justChecked=false;var n;do{n=Math.floor(Math.random()*filtered.length)}while(filtered.length>1&&n===idx);idx=n;anim('l')}
 function anim(d){if(_animLock)return;_animLock=true;var c=document.getElementById('card');c.classList.add(d==='l'?'sw-l':'sw-r');setTimeout(function(){render();c.classList.remove('sw-l','sw-r');_animLock=false},150)}
 function toggleExportMenu(e){if(e)e.stopPropagation();document.getElementById('exportMenu').classList.toggle('show')}
 function closeExportMenu(){var m=document.getElementById('exportMenu');if(m)m.classList.remove('show')}
@@ -736,9 +751,11 @@ function calcStats(){
   var today=new Date();today.setHours(0,0,0,0);var todayTs=today.getTime();
   var tomorrowTs=todayTs+86400000;
   var todayCount=0,todaySum=0,todayMax=0;
+  for(var i=0;i<entries.length;i++){
+    if(entries[i].lastCheckTime>=todayTs&&entries[i].lastCheckTime<tomorrowTs){todayCount++;todaySum+=entries[i].score;todayMax=Math.max(todayMax,entries[i].score)}
+  }
   for(var i=0;i<bestEntries.length;i++){
     sum+=bestEntries[i].score;maxS=Math.max(maxS,bestEntries[i].score);minS=Math.min(minS,bestEntries[i].score);
-    if(bestEntries[i].lastCheckTime>=todayTs&&bestEntries[i].lastCheckTime<tomorrowTs){todayCount++;todaySum+=bestEntries[i].score;todayMax=Math.max(todayMax,bestEntries[i].score)}
   }
   var avg=Math.round(sum/total);
   var todayAvg=todayCount>0?Math.round(todaySum/todayCount):null;
@@ -776,7 +793,13 @@ function calcStats(){
     if(!chMap[ch])chMap[ch]={scores:[],total:0,sum:0};
     chMap[ch].scores.push(e.score);chMap[ch].total++;chMap[ch].sum+=e.score;
   }
-  var chList=Object.keys(chMap).map(function(c){return{name:c,avg:Math.round(chMap[c].sum/chMap[c].total),total:chMap[c].total}}).sort(function(a,b){return b.avg-a.avg});
+  var chList=Object.keys(chMap).map(function(c){return{name:c,avg:Math.round(chMap[c].sum/chMap[c].total),total:chMap[c].total}}).sort(function(a,b){
+    if(b.avg!==a.avg)return b.avg-a.avg;
+    var na=parseInt(a.name.replace(/[^0-9]/g,''),10)||0;
+    var nb=parseInt(b.name.replace(/[^0-9]/g,''),10)||0;
+    if(na!==nb)return na-nb;
+    return a.name.localeCompare(b.name);
+  });
   var chProgressMap={};
   var allValid=allData.filter(function(i){return i&&i.id});
   allValid.forEach(function(k){var ch=k.chapter||'未分类';if(!chProgressMap[ch])chProgressMap[ch]={total:0,practiced:0,practiceCount:0,sumScore:0,items:[]};chProgressMap[ch].total++;chProgressMap[ch].items.push({id:k.id,title:k.title,category:k.category,count:0,bestScore:null,lastScore:null,lastTime:0})});
@@ -817,7 +840,7 @@ function calcStats(){
     var item=allData.find(function(a){return String(a.id)===e._id});
     return{title:item?item.title:'未知',chapter:item?item.chapter:'未知',score:e.score,time:e.lastCheckTime||0};
   });
-  return{total:total,avg:avg,max:maxS,min:minS,todayCount:todayCount,todayAvg:todayAvg,todayMax:todayMax,distribution:bins,maxBinCount:maxBinCount,mastery:masteryLevels,practicedCount:practicedIds.length,totalKnowledge:allData.length,categories:catList,chapters:chList,chProgress:chProgress,days:dayList,recent:recent};
+  return{total:total,avg:avg,max:maxS,min:minS,todayCount:todayCount,todayAvg:todayAvg,todayMax:todayMax,distribution:bins,maxBinCount:maxBinCount,mastery:masteryLevels,practicedCount:practicedIds.length,totalKnowledge:allValid.length,categories:catList,chapters:chList,chProgress:chProgress,days:dayList,recent:recent};
 }
 function renderStats(){
   var card=document.getElementById('card');
@@ -842,12 +865,12 @@ function renderStats(){
   h+='<div class="st-card">';
   h+='<div class="st-title">&#128200; 总体概览</div>';
   h+='<div class="st-row">';
-  h+='<div class="st-cell"><div class="st-cell-val">'+stats.total+'</div><div class="st-cell-lab">默写次数</div></div>';
+  h+='<div class="st-cell"><div class="st-cell-val">'+stats.total+'</div><div class="st-cell-lab">默写题数</div></div>';
   h+='<div class="st-cell"><div class="st-cell-val" style="color:'+(stats.avg>=80?'var(--accent)':stats.avg>=60?'var(--warn)':'var(--err)')+'">'+stats.avg+'%</div><div class="st-cell-lab">平均正确率</div></div>';
   h+='<div class="st-cell"><div class="st-cell-val">'+stats.max+'</div><div class="st-cell-lab">最高分</div></div>';
   h+='<div class="st-cell"><div class="st-cell-val" style="color:var(--err)">'+stats.min+'</div><div class="st-cell-lab">最低分</div></div>';
   h+='</div>';
-  h+='<div style="margin-top:10px;font-size:12px;color:var(--text2);text-align:center">已练习 <b style="color:var(--accent)">'+stats.practicedCount+'</b> / <b>'+stats.totalKnowledge+'</b> 个知识点（'+Math.round(stats.practicedCount/stats.totalKnowledge*100)+'%）</div>';
+  h+='<div style="margin-top:10px;font-size:12px;color:var(--text2);text-align:center">已练习 <b style="color:var(--accent)">'+stats.practicedCount+'</b> / <b>'+stats.totalKnowledge+'</b> 个知识点（'+(stats.totalKnowledge>0?Math.round(stats.practicedCount/stats.totalKnowledge*100):0)+'%）</div>';
   h+='</div>';
   if(stats.chProgress&&stats.chProgress.length>0){
     h+='<div class="cp-card">';
@@ -946,8 +969,8 @@ function renderStats(){
     h+='<div class="st-title">&#128218; 章节正确率排名</div>';
     var best=stats.chapters[0],worst=stats.chapters[stats.chapters.length-1];
     h+='<div style="margin-bottom:10px">';
-    h+='<div style="font-size:12px;color:var(--text2);margin-bottom:4px">&#128077; 最佳章节：<span style="color:var(--accent);font-weight:700">'+esc(best.name)+'</span>（'+best.avg+'%，'+best.total+'次）</div>';
-    if(stats.chapters.length>1)h+='<div style="font-size:12px;color:var(--text2)">&#128078; 待加强：<span style="color:var(--err);font-weight:700">'+esc(worst.name)+'</span>（'+worst.avg+'%，'+worst.total+'次）</div>';
+    h+='<div style="font-size:12px;color:var(--text2);margin-bottom:4px">&#128077; 最佳章节：<span style="color:var(--accent);font-weight:700">'+esc(best.name)+'</span>（'+best.avg+'%，'+best.total+'题）</div>';
+    if(stats.chapters.length>1)h+='<div style="font-size:12px;color:var(--text2)">&#128078; 待加强：<span style="color:var(--err);font-weight:700">'+esc(worst.name)+'</span>（'+worst.avg+'%，'+worst.total+'题）</div>';
     h+='</div>';
     for(var i=0;i<stats.chapters.length;i++){
       var c=stats.chapters[i];
@@ -964,16 +987,24 @@ function renderStats(){
   if(stats.days.length>0){
     h+='<div class="st-card">';
     h+='<div class="st-title">&#128200; 每日趋势（近14天）</div>';
-    var maxDayAvg=0;
-    for(var i=0;i<stats.days.length;i++)maxDayAvg=Math.max(maxDayAvg,stats.days[i].avg);
-    if(maxDayAvg<1)maxDayAvg=100;
+    var maxDayTotal=0;
+    for(var i=0;i<stats.days.length;i++)maxDayTotal=Math.max(maxDayTotal,stats.days[i].total);
+    if(maxDayTotal<1)maxDayTotal=1;
+    h+='<div class="st-day-legend">';
+    h+='<div class="st-day-legend-item"><span class="st-day-legend-dot" style="background:var(--accent)"></span>≥80分</div>';
+    h+='<div class="st-day-legend-item"><span class="st-day-legend-dot" style="background:var(--warn)"></span>60-79分</div>';
+    h+='<div class="st-day-legend-item"><span class="st-day-legend-dot" style="background:var(--err)"></span>&lt;60分</div>';
+    h+='<div class="st-day-legend-item" style="margin-left:auto;color:var(--text2)">柱高=默写题数 · 数字=平均分</div>';
+    h+='</div>';
     h+='<div class="st-day-wrap">';
     for(var i=0;i<stats.days.length;i++){
       var w=stats.days[i];
-      var barH=Math.round((w.avg||0)/maxDayAvg*70);
+      var barH=w.total>0?6+Math.round(w.total/maxDayTotal*49):3;
       var barCls=w.avg>=80?'':w.avg>=60?'mid':'low';
+      var avgColor=w.total>0?(w.avg>=80?'var(--accent)':w.avg>=60?'var(--warn)':'var(--err)'):'#ccc';
       h+='<div class="st-day-col">';
-      h+='<div class="st-day-bar '+barCls+'" style="height:'+(barH||2)+'px"></div>';
+      h+='<span class="st-day-avg" style="color:'+(w.total>0?avgColor:'#ccc')+'">'+(w.total>0?w.avg+'%':'')+'</span>';
+      h+='<div class="st-day-bar-area"><div class="st-day-bar '+barCls+'" style="height:'+barH+'px"></div></div>';
       h+='<span class="st-day-count">'+(w.total>0?w.total:'')+'</span>';
       h+='<span class="st-day-lab">'+w.label+'</span>';
       h+='</div>';
