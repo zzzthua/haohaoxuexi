@@ -729,27 +729,30 @@ function calcStats(){
   var entries=[];
   Object.keys(dictState).forEach(function(k){var d=dictState[k];if(!d||!d.checked||d.score===null)return;var hist=d.history||[{score:d.score,time:d.lastCheckTime||0}];hist.forEach(function(h){entries.push({checked:true,score:h.score,lastCheckTime:h.time,_id:k})})});
   if(entries.length===0)return null;
-  var total=entries.length,sum=0,maxS=0,minS=100;
+  var bestPerId={};
+  for(var i=0;i<entries.length;i++){var eid=entries[i]._id;if(!bestPerId[eid]||entries[i].score>bestPerId[eid].score)bestPerId[eid]=entries[i]}
+  var bestEntries=Object.keys(bestPerId).map(function(k){return bestPerId[k]});
+  var total=bestEntries.length,sum=0,maxS=0,minS=100;
   var today=new Date();today.setHours(0,0,0,0);var todayTs=today.getTime();
   var tomorrowTs=todayTs+86400000;
   var todayCount=0,todaySum=0,todayMax=0;
-  for(var i=0;i<entries.length;i++){
-    sum+=entries[i].score;maxS=Math.max(maxS,entries[i].score);minS=Math.min(minS,entries[i].score);
-    if(entries[i].lastCheckTime>=todayTs&&entries[i].lastCheckTime<tomorrowTs){todayCount++;todaySum+=entries[i].score;todayMax=Math.max(todayMax,entries[i].score)}
+  for(var i=0;i<bestEntries.length;i++){
+    sum+=bestEntries[i].score;maxS=Math.max(maxS,bestEntries[i].score);minS=Math.min(minS,bestEntries[i].score);
+    if(bestEntries[i].lastCheckTime>=todayTs&&bestEntries[i].lastCheckTime<tomorrowTs){todayCount++;todaySum+=bestEntries[i].score;todayMax=Math.max(todayMax,bestEntries[i].score)}
   }
   var avg=Math.round(sum/total);
   var todayAvg=todayCount>0?Math.round(todaySum/todayCount):null;
   var bins=[{label:'0-20',min:0,max:20,color:'var(--err)'},{label:'21-40',min:21,max:40,color:'#ff7043'},{label:'41-60',min:41,max:60,color:'var(--warn)'},{label:'61-80',min:61,max:80,color:'#66bb6a'},{label:'81-99',min:81,max:99,color:'var(--accent)'},{label:'100',min:100,max:100,color:'#2e7d32'}];
   for(var i=0;i<bins.length;i++)bins[i].count=0;
   var maxBinCount=0;
-  for(var i=0;i<entries.length;i++){
-    var s=entries[i].score;
+  for(var i=0;i<bestEntries.length;i++){
+    var s=bestEntries[i].score;
     for(var j=0;j<bins.length;j++){if(s>=bins[j].min&&s<=bins[j].max){bins[j].count++;maxBinCount=Math.max(maxBinCount,bins[j].count);break}}
   }
   var masteryMap={};
-  for(var i=0;i<entries.length;i++){
-    var id=entries[i]._id;
-    if(!masteryMap[id]||entries[i].score>masteryMap[id])masteryMap[id]=entries[i].score;
+  for(var i=0;i<bestEntries.length;i++){
+    var id=bestEntries[i]._id;
+    if(!masteryMap[id]||bestEntries[i].score>masteryMap[id])masteryMap[id]=bestEntries[i].score;
   }
   var masteryLevels=[{label:'完全掌握',min:100,max:100,color:'#2e7d32',count:0},{label:'基本掌握',min:80,max:99,color:'var(--accent)',count:0},{label:'部分掌握',min:60,max:79,color:'var(--warn)',count:0},{label:'需要加强',min:0,max:59,color:'var(--err)',count:0}];
   var practicedIds=Object.keys(masteryMap);
@@ -758,16 +761,16 @@ function calcStats(){
     for(var j=0;j<masteryLevels.length;j++){if(s>=masteryLevels[j].min&&s<=masteryLevels[j].max){masteryLevels[j].count++;break}}
   }
   var catMap={};
-  for(var i=0;i<entries.length;i++){
-    var item=allData.find(function(a){return String(a.id)===entries[i]._id});
+  for(var i=0;i<bestEntries.length;i++){
+    var item=allData.find(function(a){return String(a.id)===bestEntries[i]._id});
     var cat=item?item.category:'未知';
     if(!catMap[cat])catMap[cat]={scores:[],total:0,sum:0};
-    catMap[cat].scores.push(entries[i].score);catMap[cat].total++;catMap[cat].sum+=entries[i].score;
+    catMap[cat].scores.push(bestEntries[i].score);catMap[cat].total++;catMap[cat].sum+=bestEntries[i].score;
   }
   var catList=['三星','四星','五星'].filter(function(c){return catMap[c]}).map(function(c){return{name:c,avg:Math.round(catMap[c].sum/catMap[c].total),total:catMap[c].total}});
   var chMap={};
-  for(var i=0;i<entries.length;i++){
-    var e=entries[i];
+  for(var i=0;i<bestEntries.length;i++){
+    var e=bestEntries[i];
     var item=allData.find(function(a){return String(a.id)===e._id});
     var ch=item?item.chapter:'未知章节';
     if(!chMap[ch])chMap[ch]={scores:[],total:0,sum:0};
