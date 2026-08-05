@@ -228,6 +228,30 @@ textarea.ef{min-height:80px}
   <div class="export-menu-item" onclick="exportExcel()">Excel 格式</div>
 </div>
 <script>
+/* ============================================================
+ * 「不是事」学习应用 - 主体脚本
+ * 架构说明：采用单文件架构（HTML+CSS+JS inline）
+ *   - 适合 GitHub Pages 零成本部署，无需构建工具
+ *   - 全局状态变量集中在文件顶部，便于维护
+ *   - 主要模块：数据加载(init) → 渲染(render) → 默写校核(checkDict)
+ *               统计分析(calcStats/renderStats) → 云同步(cloudSync)
+ * ============================================================ */
+/* --- 全局状态 ---
+ * allData:     全部知识点数据
+ * chapters:    章节列表
+ * filtered:    当前筛选后的题目列表
+ * idx:         当前题目索引
+ * mode:        当前模式(0=背诵,1=默写,2=统计,3=题目分析)
+ * editing:     是否编辑模式
+ * adding:      是否新增模式
+ * revealed:    答案是否展开
+ * dictState:   默写状态字典 {id:{input,checked,score,history,...}}
+ * mnRevealed:  口诀是否展开
+ * _animLock:   动画锁，防止快速切换
+ * hidePrevAnswer: 是否隐藏上次默写答案
+ * justChecked: 刚校核完成标志
+ * _dictInputTimer: 默写输入防抖定时器
+ */
 var DATA_VERSION='v24';
 (function(){
   var s=document.createElement('script');
@@ -388,7 +412,7 @@ function getItem(){return filtered.length>0?filtered[idx]:null}
 function getDict(item){var d=dictState[item.id];if(!d)return{input:'',checked:false,score:null};return{input:d.input,checked:d.checked,score:d.score,lastCheckTime:d.lastCheckTime,correctItems:d.correctItems,userItems:d.userItems,matchedIndices:d.matchedIndices}}
 function ensureDict(item){if(!dictState[item.id])dictState[item.id]={input:'',checked:false,score:null};return dictState[item.id]}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-function ea(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function ea(s){return esc(s)}
 function render(){var card=document.getElementById('card');if(adding){renderAddForm();return}var item=getItem();if(!item&&mode!==2&&mode!==3){card.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><div style="font-size:48px;margin-bottom:10px">&#128218;</div><div>该章节暂无知识点</div></div>';progress(0,0);return}if(mode===2){renderStats();return}if(mode===3){renderQuestionAnalysis();return}progress(idx+1,filtered.length);document.getElementById('swH').textContent=mode===1?'默写模式：先写答案再对照':'左右滑动切换题目';if(editing)renderEdit(item);else if(mode===0)renderRecite(item);else renderDictate(item)}
 function renderRecite(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var h='<div class="tags">';h+='<span class="tag '+cc+'" onclick="toggleEdit()">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';h+='<button class="abtn'+(revealed?' rev':'')+'" onclick="toggleReveal()">'+(revealed?'收起答案':'查看答案')+'</button>';if(revealed){h+=formatAnswerList(item.content)}card.innerHTML=h}
 function toggleReveal(){revealed=!revealed;render()}
@@ -460,9 +484,9 @@ function toggleEdit(){editing=!editing;var b=document.getElementById('editBtn');
 function toggleAdd(){adding=!adding;if(adding&&editing)editing=false;var b=document.getElementById('editBtn');b.innerHTML=editing?'&#10003; 完成':'&#9998; 编辑';b.classList.toggle('ing',editing);render()}
 function renderAddForm(){var card=document.getElementById('card');var chOpts='';chapters.forEach(function(c){chOpts+='<option value="'+esc(c)+'">'+esc(c)+'</option>'});var h='<div class="tags"><span class="tag tmode" style="background:#e3f2fd;color:#1565c0">新增知识点</span></div>';h+='<div class="fld"><div class="fld-label">问题标题 *</div><input class="ef big" id="aTitle" placeholder="输入知识点问题"></div>';h+='<div class="fld"><div class="fld-label">所属章节 *</div><select class="ef" id="aChapter" style="appearance:auto">'+chOpts+'</select></div>';h+='<div class="fld"><div class="fld-label">星级分类 *</div><div class="star-sel"><div class="star-opt so3 on" data-cat="三星" onclick="setAddCat(this)">三星</div><div class="star-opt so4" data-cat="四星" onclick="setAddCat(this)">四星</div><div class="star-opt so5" data-cat="五星" onclick="setAddCat(this)">五星</div></div></div>';h+='<div class="fld"><div class="fld-label">答案内容 *</div><textarea class="ef" id="aContent" rows="4" placeholder="输入答案内容，多条可用 (1)xxx (2)xxx 格式"></textarea></div>';h+='<div class="fld"><div class="fld-label">记忆口诀（选填）</div><input class="ef mn" id="aMn" placeholder="输入助记口诀"></div>';h+='<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" style="background:var(--accent);color:#fff;flex:2" onclick="saveNew()">&#10003; 添加</button><button class="btn" style="background:#f5f5f5;color:var(--text2);flex:1" onclick="toggleAdd()">取消</button></div>';document.getElementById('pBar').style.width='0%';document.getElementById('pText').textContent='新增模式';document.getElementById('swH').textContent='填写知识点信息后点击添加';card.innerHTML=h;document.getElementById('aTitle').focus()}
 function setAddCat(el){var cats=document.querySelectorAll('.star-sel .star-opt');for(var i=0;i<cats.length;i++){cats[i].classList.remove('on')}el.classList.add('on')}
-function saveNew(){var title=document.getElementById('aTitle').value.trim();var chapter=document.getElementById('aChapter').value;var content=document.getElementById('aContent').value.trim();var mnemonic=document.getElementById('aMn').value.trim();var catEl=document.querySelector('.star-sel .star-opt.on');var category=catEl?catEl.getAttribute('data-cat'):'三星';if(!title){toast('请输入问题标题');document.getElementById('aTitle').focus();return}if(title.length>200){toast('标题过长（限200字）');return}if(!content){toast('请输入答案内容');document.getElementById('aContent').focus();return}if(content.length>5000){toast('答案内容过长（限5000字）');return}var id='custom_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);var newItem={id:id,title:title,chapter:chapter,category:category,content:content,mnemonic:mnemonic,lastModified:Date.now()};allData.unshift(newItem);save();filtered=allData.filter(function(i){return i});var sel=document.getElementById('chSel');if(sel.value!=='all'){filtered=allData.filter(function(i){return i&&i.chapter===sel.value})}idx=0;adding=false;render();toast('知识点已添加');populateChSel()}
+function saveNew(){var title=document.getElementById('aTitle').value.trim();var chapter=document.getElementById('aChapter').value;var content=document.getElementById('aContent').value.trim();var mnemonic=document.getElementById('aMn').value.trim();var catEl=document.querySelector('.star-sel .star-opt.on');var category=catEl?catEl.getAttribute('data-cat'):'三星';if(!title){toast('请输入问题标题');document.getElementById('aTitle').focus();return}if(title.length>200){toast('标题过长（限200字）');return}if(!content){toast('请输入答案内容');document.getElementById('aContent').focus();return}if(content.length>5000){toast('答案内容过长（限5000字）');return}if(mnemonic&&mnemonic.length>500){toast('口诀过长（限500字）');return}var id='custom_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);var newItem={id:id,title:title,chapter:chapter,category:category,content:content,mnemonic:mnemonic,lastModified:Date.now()};allData.unshift(newItem);save();filtered=allData.filter(function(i){return i});var sel=document.getElementById('chSel');if(sel.value!=='all'){filtered=allData.filter(function(i){return i&&i.chapter===sel.value})}idx=0;adding=false;render();toast('知识点已添加');populateChSel()}
 function setCat(c){document.getElementById('eCat').value=c;var opts=document.querySelectorAll('.star-opt');for(var i=0;i<opts.length;i++){opts[i].classList.toggle('on',opts[i].textContent===c)}}
-function deleteItem(){var item=getItem();if(!item)return;if(!confirm('确定要删除「'+item.title+'」吗？\n删除后无法恢复！'))return;var ai=allData.findIndex(function(a){return a&&a.id===item.id});if(ai===-1)return;allData.splice(ai,1);delete dictState[item.id];save();saveDict();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}if(idx>=filtered.length)idx=filtered.length-1;if(idx<0)idx=0;if(editing)toggleEdit();render();toast('知识点已删除')}function saveEdit(){var item=getItem();if(!item)return;item.title=document.getElementById('eTitle').value.trim();item.chapter=document.getElementById('eChapter').value;item.category=document.getElementById('eCat').value;item.content=document.getElementById('eContent').value.trim();item.mnemonic=document.getElementById('eMn').value.trim();if(!item.title){toast('标题不能为空');return}if(item.title.length>200){toast('标题过长（限200字）');return}if(item.content.length>5000){toast('答案内容过长（限5000字）');return}var orig=allData.find(function(a){return a&&a.id===item.id});if(orig){orig.title=item.title;orig.chapter=item.chapter;orig.category=item.category;orig.content=item.content;orig.mnemonic=item.mnemonic;orig.lastModified=Date.now()}save();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}else{idx=filtered.indexOf(item);if(idx===-1)idx=0}toggleEdit();render();toast('修改已保存')}
+function deleteItem(){var item=getItem();if(!item)return;if(!confirm('确定要删除「'+item.title+'」吗？\n删除后无法恢复！'))return;var ai=allData.findIndex(function(a){return a&&a.id===item.id});if(ai===-1)return;allData.splice(ai,1);delete dictState[item.id];save();saveDict();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}if(idx>=filtered.length)idx=filtered.length-1;if(idx<0)idx=0;if(editing)toggleEdit();render();toast('知识点已删除')}function saveEdit(){var item=getItem();if(!item)return;item.title=document.getElementById('eTitle').value.trim();item.chapter=document.getElementById('eChapter').value;item.category=document.getElementById('eCat').value;item.content=document.getElementById('eContent').value.trim();item.mnemonic=document.getElementById('eMn').value.trim();if(!item.title){toast('标题不能为空');return}if(item.title.length>200){toast('标题过长（限200字）');return}if(item.mnemonic&&item.mnemonic.length>500){toast('口诀过长（限500字）');return}if(item.content.length>5000){toast('答案内容过长（限5000字）');return}var orig=allData.find(function(a){return a&&a.id===item.id});if(orig){orig.title=item.title;orig.chapter=item.chapter;orig.category=item.category;orig.content=item.content;orig.mnemonic=item.mnemonic;orig.lastModified=Date.now()}save();var sel=document.getElementById('chSel');filtered=sel.value==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===sel.value});if(filtered.length===0){filtered=allData.filter(function(i){return i});sel.value='all'}else{idx=filtered.indexOf(item);if(idx===-1)idx=0}toggleEdit();render();toast('修改已保存')}
 function moveTo(){
   var item=getItem();if(!item)return;
   var input=document.getElementById('ePos');
@@ -736,6 +760,9 @@ function calcStats(){
   var entries=[];
   Object.keys(dictState).forEach(function(k){var d=dictState[k];if(!d||!d.checked||d.score===null)return;var hist=d.history||[{score:d.score,time:d.lastCheckTime||0}];hist.forEach(function(h){if(h.score===null||h.score===undefined||!h.time||h.time<=0)return;entries.push({checked:true,score:h.score,lastCheckTime:h.time,_id:k})})});
   if(entries.length===0)return null;
+  var _itemMap={};
+  allData.forEach(function(a){if(a&&a.id)_itemMap[String(a.id)]=a});
+  function findItem(id){return _itemMap[id]||null}
   var bestPerId={};
   for(var i=0;i<entries.length;i++){var eid=entries[i]._id;if(!bestPerId[eid]||entries[i].score>bestPerId[eid].score)bestPerId[eid]=entries[i]}
   var bestEntries=Object.keys(bestPerId).map(function(k){return bestPerId[k]});
@@ -771,7 +798,7 @@ function calcStats(){
   }
   var catMap={};
   for(var i=0;i<bestEntries.length;i++){
-    var item=allData.find(function(a){return String(a.id)===bestEntries[i]._id});
+    var item=findItem(bestEntries[i]._id);
     var cat=item?item.category:'未知';
     if(!catMap[cat])catMap[cat]={scores:[],total:0,sum:0};
     catMap[cat].scores.push(bestEntries[i].score);catMap[cat].total++;catMap[cat].sum+=bestEntries[i].score;
@@ -780,7 +807,7 @@ function calcStats(){
   var chMap={};
   for(var i=0;i<bestEntries.length;i++){
     var e=bestEntries[i];
-    var item=allData.find(function(a){return String(a.id)===e._id});
+    var item=findItem(e._id);
     var ch=item?item.chapter:'未知章节';
     if(!chMap[ch])chMap[ch]={scores:[],total:0,sum:0};
     chMap[ch].scores.push(e.score);chMap[ch].total++;chMap[ch].sum+=e.score;
@@ -830,7 +857,7 @@ function calcStats(){
   var dayList=dayKeys.map(function(k){return{date:k,label:dayMap[k].label,avg:dayMap[k].total>0?Math.round(dayMap[k].sum/dayMap[k].total):0,total:dayMap[k].total}});
   var sorted=[].concat(entries).sort(function(a,b){return (b.lastCheckTime||0)-(a.lastCheckTime||0)});
   var recent=sorted.slice(0,15).map(function(e){
-    var item=allData.find(function(a){return String(a.id)===e._id});
+    var item=findItem(e._id);
     return{title:item?item.title:'未知',chapter:item?item.chapter:'未知',score:e.score,time:e.lastCheckTime||0};
   });
   return{total:total,avg:avg,max:maxS,min:minS,todayCount:todayCount,todayAvg:todayAvg,todayMax:todayMax,distribution:bins,maxBinCount:maxBinCount,mastery:masteryLevels,practicedCount:practicedIds.length,totalKnowledge:allValid.length,categories:catList,chapters:chList,chProgress:chProgress,days:dayList,recent:recent};
