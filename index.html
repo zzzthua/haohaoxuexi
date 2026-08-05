@@ -345,7 +345,7 @@ function init(){
   save();
   populateChSel();render();setupSwipe();
 }
-function save(){try{localStorage.setItem('hxx_data',JSON.stringify({knowledge:allData}))}catch(e){if(e.name==='QuotaExceededError'){toast('存储空间不足，请导出备份后清理旧数据')}else{toast('保存失败：'+e.message)}}}
+function save(){try{localStorage.setItem('hxx_data',JSON.stringify({knowledge:allData}))}catch(e){if(e.name==='QuotaExceededError'||e.code===22){try{var slimmed=slimDict(dictState);localStorage.setItem('hxx_dict',JSON.stringify(slimmed));dictState=slimmed;localStorage.setItem('hxx_data',JSON.stringify({knowledge:allData}));toast('存储已自动精简')}catch(e2){toast('存储空间不足，请点击「导出」备份后清理旧数据',3000)}}else{toast('保存失败：'+e.message)}}}
 function saveDict(){try{localStorage.setItem('hxx_dict',JSON.stringify(dictState))}catch(e){if(e.name==='QuotaExceededError'){try{var slimmed=slimDict(dictState);localStorage.setItem('hxx_dict',JSON.stringify(slimmed));dictState=slimmed;toast('默写历史已精简以节省空间')}catch(e2){toast('存储空间不足，请导出备份')}}else{toast('保存失败：'+e.message)}}}
 function mergeDict(local,cloud){
   var merged={};
@@ -416,10 +416,7 @@ function onDictInput(){var item=getItem();if(!item)return;var ta=document.getEle
 function normalizeText(t){t=t.replace(/[\s\n\r\t]+/g,'');t=t.replace(/\uff08/g,'(').replace(/\uff09/g,')');t=t.replace(/\uff0c/g,',').replace(/\u3002/g,'.').replace(/\u3001/g,',');t=t.replace(/\uff1b/g,';').replace(/\uff1a/g,':').replace(/\uff01/g,'!').replace(/\uff1f/g,'?');t=t.replace(/\u201c/g,'"').replace(/\u201d/g,'"');t=t.replace(/\u2018/g,"'" ).replace(/\u2019/g,"'" );t=t.replace(/\u3010/g,'[').replace(/\u3011/g,']');t=t.replace(/\u300a/g,'').replace(/\u300b/g,'');return t.toLowerCase()}
 function normalizeSynonyms(t){
   t=t.replace(/[及和与或]/g,'与');
-  t=t.replace(/战略|策略|方针/g,'战略');
   t=t.replace(/组织|企业|公司|机构/g,'组织');
-  t=t.replace(/信息资源|数据资源/g,'数据资源');
-  t=t.replace(/构建|建设|搭建|建立/g,'建立');
   t=t.replace(/开展/g,'进行');
   return t;
 }
@@ -437,15 +434,21 @@ function textSimilarity(a,b){
 function fuzzyMatch(correctStr,userStr){
   if(correctStr===userStr)return true;
   var minLen=Math.min(correctStr.length,userStr.length);
-  if(minLen>6){
+  var maxLen=Math.max(correctStr.length,userStr.length);
+  if(minLen>6&&maxLen/minLen<=2){
     if(correctStr.length>2&&userStr.indexOf(correctStr)!==-1)return true;
     if(userStr.length>2&&correctStr.indexOf(userStr)!==-1)return true;
   }
   var cs=normalizeSynonyms(correctStr),us=normalizeSynonyms(userStr);
   if(cs===us)return true;
-  if(cs.length>2&&us.indexOf(cs)!==-1&&cs.length>=6)return true;
-  if(us.length>2&&cs.indexOf(us)!==-1&&us.length>=6)return true;
+  var csLen=cs.length,usLen=us.length;
+  var minN=Math.min(csLen,usLen),maxN=Math.max(csLen,usLen);
+  if(minN>6&&maxN/minN<=2){
+    if(csLen>2&&us.indexOf(cs)!==-1)return true;
+    if(usLen>2&&cs.indexOf(us)!==-1)return true;
+  }
   var sim=textSimilarity(cs,us);
+  if(minN<=6)return sim>=90;
   return sim>=80;
 }
 function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');if(!ta)return;var ds=ensureDict(item);ds.input=ta.value;if(!ds.input||!ds.input.trim()){toast('请先输入默写内容');return}ds.checked=true;ds.lastCheckTime=Date.now();ds.count=(ds.count||0)+1;ds.history=ds.history||[];var correct=normalizeText(item.content||'');var userRaw=ds.input||'';function extractItems(text){if(!text)return[];var n=text.replace(/[\(（](\d+)[\)）]/g,'($1)').replace(/(\d+)[,.。、]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0}).map(function(x){var s=x.replace(/^\(\d+\)/,'').trim();s=s.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return s.replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}if(m&&m.length===1){var single=m[0].replace(/^\(\d+\)/,'').trim();var words=single.split(/[\s]+/).filter(function(x){return x.trim().length>0});if(words.length>1&&words.every(function(w){return w.replace(/[^\w\u4e00-\u9fa5]/g,'').length<=8})){return words.map(function(w){return w.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()})}}var s=text.split(/[,.。、]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s.map(function(x){var t=x.trim();t=t.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return t.replace(/[。.,,；;！!？?：:、]+$/,'').trim()});return [text.trim().replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()]}function extractUserItems(raw){var parts=raw.split(/[\n\r]+/);if(parts.length<=1){parts=raw.split(/[ ]+/)}return parts.map(function(p){return p.trim()}).filter(function(p){return p.length>0}).map(function(p){return p.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}var correctItems=extractItems(correct);var userItems=extractUserItems(userRaw).map(function(u){return normalizeText(u)});var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=userItems[j].replace(/^\(\d+\)/,'');if(fuzzyMatch(cn,un)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(normalizeText(userRaw)===correct?100:0);ds.score=score;ds.history.push({score:score,time:ds.lastCheckTime});if(ds.history.length>50)ds.history=ds.history.slice(-50);ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;justChecked=true;saveDict();render();toast('校核完成：'+score+'分')}
