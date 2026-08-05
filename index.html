@@ -252,7 +252,7 @@ textarea.ef{min-height:80px}
  * justChecked: 刚校核完成标志
  * _dictInputTimer: 默写输入防抖定时器
  */
-var DATA_VERSION='v24';
+var DATA_VERSION='v25';
 (function(){
   var s=document.createElement('script');
   s.src='data.js?v='+DATA_VERSION+'&t='+Date.now();
@@ -327,6 +327,7 @@ function init(){
     var ver=localStorage.getItem('hxx_ver');
     if(ver!==DATA_VERSION){
       localStorage.setItem('hxx_ver',DATA_VERSION);
+      localStorage.removeItem('hxx_dict');
     }
     var s=localStorage.getItem('hxx_data');
     var localKnowledge=null;
