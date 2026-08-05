@@ -297,6 +297,7 @@ var mnRevealed=true;
 var _animLock=false;
 var hidePrevAnswer=false;
 var justChecked=false;
+var _dictInputTimer=null;
 function init(){
   try{
     var ver=localStorage.getItem('hxx_ver');
@@ -354,14 +355,18 @@ function mergeDict(local,cloud){
     var l=local[k],c=cloud[k];
     if(!l){merged[k]=c;continue}
     if(!c){merged[k]=l;continue}
-    var lHist=l.history||[{score:l.score,time:l.lastCheckTime||0}];
-    var cHist=c.history||[{score:c.score,time:c.lastCheckTime||0}];
+    var lHist=l.history||[];
+    var cHist=c.history||[];
     var allHist=lHist.concat(cHist);
+    allHist=allHist.filter(function(h){return h&&h.score!==null&&h.score!==undefined&&h.time&&h.time>0});
     var seen={};
     allHist=allHist.filter(function(h){var key=h.time;if(seen[key])return false;seen[key]=true;return true});
     allHist.sort(function(a,b){return b.time-a.time});
-    var latest=allHist[0]||{score:l.score,time:l.lastCheckTime||0};
-    merged[k]={input:((l.lastCheckTime||0)>=(c.lastCheckTime||0))?l.input:c.input,checked:true,score:latest.score,lastCheckTime:latest.time,count:allHist.length,history:allHist};
+    var latest=allHist[0]||null;
+    var checked=latest?true:false;
+    var score=latest?latest.score:null;
+    var lastTime=latest?latest.time:0;
+    merged[k]={input:((l.lastCheckTime||0)>=(c.lastCheckTime||0))?l.input:c.input,checked:checked,score:score,lastCheckTime:lastTime,count:allHist.length,history:allHist};
   }
   return merged;
 }
@@ -369,13 +374,13 @@ function slimDict(d){
   var out={};
   Object.keys(d).forEach(function(k){
     var e=d[k];if(!e||!e.checked)return;
-    var hist=e.history||[{score:e.score,time:e.lastCheckTime||0}];
+    var hist=(e.history||[]).filter(function(h){return h&&h.score!==null&&h.score!==undefined&&h.time&&h.time>0});
     out[k]={input:e.input||'',checked:e.checked,score:e.score,lastCheckTime:e.lastCheckTime||0,count:e.count||hist.length,history:hist};
   });
   return out;
 }
 function toast(m,d){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},d||1500)}
-function populateChSel(){var sel=document.getElementById('chSel');var opts=[];for(var i=0;i<sel.options.length;i++)opts.push(sel.options[i].value);chapters.forEach(function(c){if(opts.indexOf(c)===-1){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)}});sel.onchange=function(){filterCh(sel.value)}}
+function populateChSel(){var sel=document.getElementById('chSel');var cur=sel.value;var chs=[];allData.forEach(function(i){if(i&&i.chapter&&chs.indexOf(i.chapter)===-1)chs.push(i.chapter)});chapters.forEach(function(c){if(chs.indexOf(c)===-1)chs.push(c)});sel.innerHTML='<option value="all">全部章节</option>';chs.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o)});if(cur){var found=false;for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===cur){found=true;break}}sel.value=found?cur:'all'}sel.onchange=function(){filterCh(sel.value)}}
 function filterCh(c){filtered=c==='all'?allData.filter(function(i){return i}):allData.filter(function(i){return i&&i.chapter===c});idx=0;justChecked=false;if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function switchMode(m){mode=m;document.getElementById('tab0').classList.toggle('active',m===0);document.getElementById('tab1').classList.toggle('active',m===1);document.getElementById('tab2').classList.toggle('active',m===2);document.getElementById('tab3').classList.toggle('active',m===3);document.getElementById('cWrap').classList.toggle('stats-pad',m===2||m===3);if(editing)toggleEdit();if(adding)toggleAdd();render()}
 function progress(c,t){document.getElementById('pBar').style.width=(t>0?c/t*100:0)+'%';document.getElementById('pText').textContent=c+' / '+t}
@@ -407,7 +412,7 @@ function formatAnswerList(content){
   return '<div class="acontent" style="font-size:17px;line-height:1.9">'+esc(content)+'</div>';
 }
 function renderDictate(item){var cc=item.category==='五星'?'t5':item.category==='四星'?'t4':'t3';var ds=ensureDict(item);var h='<div class="tags">';h+='<span class="tag '+cc+'">'+item.category+'</span>';h+='<span class="tag tch">'+item.chapter+'</span>';h+='</div>';h+='<div class="fld"><div class="fld-val big">'+esc(item.title)+'</div></div>';if(item.mnemonic){h+='<div class="mn-inline" onclick="toggleMn()"><div style="display:flex;align-items:center;flex:1;min-width:0"><span class="mn-inline-label">口诀</span>'+(mnRevealed?'<span class="mn-inline-text">'+esc(item.mnemonic)+'</span>':'')+'</div><span class="mn-inline-eye">'+(mnRevealed?'&#128064;':'&#128065;')+'</span></div>'}h+='<hr class="sep">';h+='<div class="dict-toggle-row"><span>隐藏上次默写</span><label class="dt-switch"><input type="checkbox" '+(hidePrevAnswer?'checked':'')+' onchange="toggleHidePrev(this.checked)"><span class="dt-slider"></span></label></div>';var showResult=ds.checked&&(!hidePrevAnswer||justChecked);if(!showResult){h+='<div class="fld"><div class="fld-label">你的默写答案</div>';h+='<textarea class="dict-area" id="dictInput" placeholder="在此默写答案..." oninput="onDictInput()">'+(hidePrevAnswer?'':esc(ds.input))+'</textarea></div>';h+='<button class="abtn check" onclick="checkDict()">提交校核</button>'}else{h+=renderCheckResult(item,ds)}card.innerHTML=h;var ta=document.getElementById('dictInput');if(ta){ta.focus();ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}}
-function onDictInput(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=ensureDict(item);ds.input=ta.value;ds.checked=false;ds.score=null;saveDict()}
+function onDictInput(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');var ds=ensureDict(item);ds.input=ta.value;ds.checked=false;ds.score=null;if(_dictInputTimer)clearTimeout(_dictInputTimer);_dictInputTimer=setTimeout(function(){saveDict()},800)}
 function normalizeText(t){t=t.replace(/[\s\n\r\t]+/g,'');t=t.replace(/\uff08/g,'(').replace(/\uff09/g,')');t=t.replace(/\uff0c/g,',').replace(/\u3002/g,'.').replace(/\u3001/g,',');t=t.replace(/\uff1b/g,';').replace(/\uff1a/g,':').replace(/\uff01/g,'!').replace(/\uff1f/g,'?');t=t.replace(/\u201c/g,'"').replace(/\u201d/g,'"');t=t.replace(/\u2018/g,"'" ).replace(/\u2019/g,"'" );t=t.replace(/\u3010/g,'[').replace(/\u3011/g,']');t=t.replace(/\u300a/g,'').replace(/\u300b/g,'');return t.toLowerCase()}
 function normalizeSynonyms(t){
   t=t.replace(/[及和与或]/g,'与');
@@ -415,9 +420,7 @@ function normalizeSynonyms(t){
   t=t.replace(/组织|企业|公司|机构/g,'组织');
   t=t.replace(/信息资源|数据资源/g,'数据资源');
   t=t.replace(/构建|建设|搭建|建立/g,'建立');
-  t=t.replace(/管理|管控|治理/g,'治理');
-  t=t.replace(/开展/,'进行');
-  t=t.replace(/一类|一种/g,'');
+  t=t.replace(/开展/g,'进行');
   return t;
 }
 function textSimilarity(a,b){
@@ -440,12 +443,12 @@ function fuzzyMatch(correctStr,userStr){
   }
   var cs=normalizeSynonyms(correctStr),us=normalizeSynonyms(userStr);
   if(cs===us)return true;
-  if(cs.length>2&&us.indexOf(cs)!==-1&&cs.length>=4)return true;
-  if(us.length>2&&cs.indexOf(us)!==-1&&us.length>=4)return true;
+  if(cs.length>2&&us.indexOf(cs)!==-1&&cs.length>=6)return true;
+  if(us.length>2&&cs.indexOf(us)!==-1&&us.length>=6)return true;
   var sim=textSimilarity(cs,us);
   return sim>=80;
 }
-function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');if(!ta)return;var ds=ensureDict(item);ds.input=ta.value;ds.checked=true;ds.lastCheckTime=Date.now();ds.count=(ds.count||0)+1;ds.history=ds.history||[];var correct=normalizeText(item.content||'');var userRaw=ds.input||'';function extractItems(text){if(!text)return[];var n=text.replace(/[\(（](\d+)[\)）]/g,'($1)').replace(/(\d+)[,.。、]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0}).map(function(x){var s=x.replace(/^\(\d+\)/,'').trim();s=s.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return s.replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}if(m&&m.length===1){var single=m[0].replace(/^\(\d+\)/,'').trim();var words=single.split(/[\s]+/).filter(function(x){return x.trim().length>0});if(words.length>1&&words.every(function(w){return w.replace(/[^\w\u4e00-\u9fa5]/g,'').length<=8})){return words.map(function(w){return w.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()})}}var s=text.split(/[,.。、]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s.map(function(x){var t=x.trim();t=t.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return t.replace(/[。.,,；;！!？?：:、]+$/,'').trim()});return [text.trim().replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()]}function extractUserItems(raw){var parts=raw.split(/[\n\r]+/);if(parts.length<=1){parts=raw.split(/[ ]+/)}return parts.map(function(p){return p.trim()}).filter(function(p){return p.length>0}).map(function(p){return p.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}var correctItems=extractItems(correct);var userItems=extractUserItems(userRaw).map(function(u){return normalizeText(u)});var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=userItems[j].replace(/^\(\d+\)/,'');if(fuzzyMatch(cn,un)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(normalizeText(userRaw)===correct?100:0);ds.score=score;ds.history.push({score:score,time:ds.lastCheckTime});ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;justChecked=true;saveDict();render();toast('校核完成：'+score+'分')}
+function checkDict(){var item=getItem();if(!item)return;var ta=document.getElementById('dictInput');if(!ta)return;var ds=ensureDict(item);ds.input=ta.value;if(!ds.input||!ds.input.trim()){toast('请先输入默写内容');return}ds.checked=true;ds.lastCheckTime=Date.now();ds.count=(ds.count||0)+1;ds.history=ds.history||[];var correct=normalizeText(item.content||'');var userRaw=ds.input||'';function extractItems(text){if(!text)return[];var n=text.replace(/[\(（](\d+)[\)）]/g,'($1)').replace(/(\d+)[,.。、]/g,'($1)').replace(/([①②③④⑤⑥⑦⑧⑨⑩])/g,function(m){var map={'①':'(1)','②':'(2)','③':'(3)','④':'(4)','⑤':'(5)','⑥':'(6)','⑦':'(7)','⑧':'(8)','⑨':'(9)','⑩':'(10)'};return map[m]||m});var m=n.match(/\(\d+\)[^(]*/g);if(m&&m.length>1){return m.filter(function(x){return x.replace(/[^\w\u4e00-\u9fa5]/g,'').length>0}).map(function(x){var s=x.replace(/^\(\d+\)/,'').trim();s=s.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return s.replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}if(m&&m.length===1){var single=m[0].replace(/^\(\d+\)/,'').trim();var words=single.split(/[\s]+/).filter(function(x){return x.trim().length>0});if(words.length>1&&words.every(function(w){return w.replace(/[^\w\u4e00-\u9fa5]/g,'').length<=8})){return words.map(function(w){return w.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()})}}var s=text.split(/[,.。、]/).filter(function(x){return x.trim().length>2});if(s.length>1)return s.map(function(x){var t=x.trim();t=t.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim();return t.replace(/[。.,,；;！!？?：:、]+$/,'').trim()});return [text.trim().replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').trim()]}function extractUserItems(raw){var parts=raw.split(/[\n\r]+/);if(parts.length<=1){parts=raw.split(/[ ]+/)}return parts.map(function(p){return p.trim()}).filter(function(p){return p.length>0}).map(function(p){return p.replace(/【[^】]*】/g,'').replace(/\[[^\]]*\]/g,'').replace(/〔[^〕]*〕/g,'').replace(/[。.,,；;！!？?：:、]+$/,'').trim()})}var correctItems=extractItems(correct);var userItems=extractUserItems(userRaw).map(function(u){return normalizeText(u)});var matchedIndices=[];for(var i=0;i<correctItems.length;i++){var cn=normalizeText(correctItems[i].replace(/^\(\d+\)/,''));for(var j=0;j<userItems.length;j++){var un=userItems[j].replace(/^\(\d+\)/,'');if(fuzzyMatch(cn,un)){matchedIndices.push(i);break}}}var score=correctItems.length>0?Math.round(matchedIndices.length/correctItems.length*100):(normalizeText(userRaw)===correct?100:0);ds.score=score;ds.history.push({score:score,time:ds.lastCheckTime});if(ds.history.length>50)ds.history=ds.history.slice(-50);ds.correctItems=correctItems;ds.userItems=userItems;ds.matchedIndices=matchedIndices;justChecked=true;saveDict();render();toast('校核完成：'+score+'分')}
 function renderCheckResult(item,ds){var h='<div class="check-result">';var cls=ds.score>=80?'perfect':ds.score>=40?'partial':'miss';var label=ds.score>=80?'掌握良好':ds.score>=40?'部分正确':'需要加强';h+='<div class="check-header '+cls+'"><span>校核结果</span><span>'+ds.score+'分 - '+label+'</span></div>';h+='<div class="check-body" style="background:#f5f5f5"><div style="font-weight:600;color:var(--text2);margin-bottom:4px">你的答案：</div><div style="white-space:pre-wrap;word-break:break-all">'+(esc(ds.input)||'<span style="color:#bbb">（未填写）</span>')+'</div></div>';h+='<div class="check-body"><div style="font-weight:600;color:var(--accent);margin-bottom:4px">正确答案：</div><div>'+esc(item.content||'暂无答案')+'</div></div>';if(ds.correctItems&&ds.correctItems.length>0){h+='<div class="check-body" style="font-size:13px;line-height:2"><div style="font-weight:600;margin-bottom:4px">逐条对比：</div>';var used=[];for(var i=0;i<ds.correctItems.length;i++){var ci=ds.correctItems[i].replace(/^\(\d+\)/,'').trim();var isMatch=ds.matchedIndices&&ds.matchedIndices.indexOf(i)!==-1;var matchIdx=-1;if(isMatch){var cni=normalizeText(ci);for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=normalizeText(ds.userItems[j].replace(/^\(\d+\)/,''));if(fuzzyMatch(cni,uj)){matchIdx=j;used.push(j);break}}}var ui=matchIdx>=0?ds.userItems[matchIdx].replace(/^\(\d+\)/,'').trim():'';h+='<div style="margin-bottom:4px"><span style="color:var(--text2)">('+(i+1)+') </span>';h+=isMatch?'<span class="correct-line">&#10003; '+esc(ci)+'</span>':'<span class="missed-line">&#10007; '+esc(ci)+'</span>';if(!isMatch&&ui)h+='<br><span class="extra-line">你的回答：'+esc(ui)+'</span>';h+='</div>'}for(var j=0;j<ds.userItems.length;j++){if(used.indexOf(j)!==-1)continue;var uj=ds.userItems[j].replace(/^\(\d+\)/,'').trim();if(uj.length>0)h+='<div style="margin-bottom:4px"><span class="extra-line">&#9654; 多余项：'+esc(uj)+'</span></div>'}h+='</div>'}h+='<div style="padding:6px 10px"><button class="abtn" style="background:#e3f2fd;color:#1565c0" onclick="retryDict()">重新默写</button></div></div>';return h}
 function retryDict(){var item=getItem();if(!item)return;var ds=ensureDict(item);ds.checked=false;ds.score=null;ds.input='';justChecked=false;saveDict();render()}
 function toggleHidePrev(v){hidePrevAnswer=v;justChecked=false;render()}
@@ -726,8 +729,6 @@ function formatRelativeTime(ts){
   if(thenDay===yesterday)return'昨天 '+timeStr;
   return String(then.getMonth()+1)+'/'+String(then.getDate())+' '+timeStr;
 }
-function getWeekNumber(d){var date=new Date(d);date.setHours(0,0,0,0);date.setDate(date.getDate()+3-(date.getDay()+6)%7);var year=date.getFullYear();var jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);var dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1;if(dayNr<1){year--;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}else if(dayNr>366||(dayNr>365&&((year%4!==0)||(year%100===0&&year%400!==0)))){year++;jan4=new Date(year,0,4);jan4.setHours(0,0,0,0);dayNr=Math.floor((date.getTime()-jan4.getTime())/86400000)+1}return year+'-W'+String(Math.ceil(dayNr/7)).padStart(2,'0')}
-function formatWeekLabel(weekKey){var parts=weekKey.split('-W');return parts[0]+'年第'+parts[1]+'周'}
 function calcStats(){
   var entries=[];
   Object.keys(dictState).forEach(function(k){var d=dictState[k];if(!d||!d.checked||d.score===null)return;var hist=d.history||[{score:d.score,time:d.lastCheckTime||0}];hist.forEach(function(h){if(h.score===null||h.score===undefined||!h.time||h.time<=0)return;entries.push({checked:true,score:h.score,lastCheckTime:h.time,_id:k})})});
@@ -847,7 +848,7 @@ function renderStats(){
     h+='<div class="st-title">&#128197; 今日概览</div>';
     h+='<div class="st-row">';
     h+='<div class="st-cell"><div class="st-cell-val">'+stats.todayCount+'</div><div class="st-cell-lab">今日默写</div></div>';
-    h+='<div class="st-cell"><div class="st-cell-val" style="color:'+(stats.todayAvg>=80?'var(--accent)':stats.todayAvg>=60?'var(--warn)':'var(--err)')+'">'+stats.todayAvg+'%</div><div class="st-cell-lab">今日均分</div></div>';
+    h+='<div class="st-cell"><div class="st-cell-val" style="color:'+(stats.todayAvg>=80?'var(--accent)':stats.todayAvg>=60?'var(--warn)':'var(--err)')+'">'+stats.todayAvg+'分</div><div class="st-cell-lab">今日均分</div></div>';
     h+='<div class="st-cell"><div class="st-cell-val">'+stats.todayMax+'</div><div class="st-cell-lab">今日最佳</div></div>';
     h+='</div></div>';
   }
@@ -948,7 +949,7 @@ function renderStats(){
       h+='<div class="st-cat-row">';
       h+='<span class="tag '+tagCls+'">'+c.name+'</span>';
       h+='<div class="st-cat-bar-wrap"><div class="st-cat-bar '+barCls+'" style="width:'+c.avg+'%"></div></div>';
-      h+='<span class="st-cat-pct" style="color:'+(c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)')+'">'+c.avg+'%</span>';
+      h+='<span class="st-cat-pct" style="color:'+(c.avg>=80?'var(--accent)':c.avg>=60?'var(--warn)':'var(--err)')+'">'+c.avg+'分</span>';
       h+='</div>';
     }
     h+='</div>';
@@ -958,8 +959,8 @@ function renderStats(){
     h+='<div class="st-title">&#128218; 章节正确率排名</div>';
     var best=stats.chapters[0],worst=stats.chapters[stats.chapters.length-1];
     h+='<div style="margin-bottom:10px">';
-    h+='<div style="font-size:12px;color:var(--text2);margin-bottom:4px">&#128077; 最佳章节：<span style="color:var(--accent);font-weight:700">'+esc(best.name)+'</span>（'+best.avg+'%，'+best.total+'题）</div>';
-    if(stats.chapters.length>1)h+='<div style="font-size:12px;color:var(--text2)">&#128078; 待加强：<span style="color:var(--err);font-weight:700">'+esc(worst.name)+'</span>（'+worst.avg+'%，'+worst.total+'题）</div>';
+    h+='<div style="font-size:12px;color:var(--text2);margin-bottom:4px">&#128077; 最佳章节：<span style="color:var(--accent);font-weight:700">'+esc(best.name)+'</span>（'+best.avg+'分，'+best.total+'题）</div>';
+    if(stats.chapters.length>1)h+='<div style="font-size:12px;color:var(--text2)">&#128078; 待加强：<span style="color:var(--err);font-weight:700">'+esc(worst.name)+'</span>（'+worst.avg+'分，'+worst.total+'题）</div>';
     h+='</div>';
     for(var i=0;i<stats.chapters.length;i++){
       var c=stats.chapters[i];
@@ -968,7 +969,7 @@ function renderStats(){
       h+='<div class="st-ch-row">';
       h+='<span class="st-ch-name">'+(i+1)+'. '+esc(c.name)+'</span>';
       h+='<div class="st-bar-wrap" style="flex:1;max-width:140px"><div class="st-bar-fill '+barCls+'" style="width:'+pct+'%"></div></div>';
-      h+='<span class="st-ch-pct" style="color:'+(pct>=80?'var(--accent)':pct>=60?'var(--warn)':'var(--err)')+'">'+pct+'%</span>';
+      h+='<span class="st-ch-pct" style="color:'+(pct>=80?'var(--accent)':pct>=60?'var(--warn)':'var(--err)')+'">'+pct+'分</span>';
       h+='</div>';
     }
     h+='</div>';
@@ -992,7 +993,7 @@ function renderStats(){
       var barCls=w.avg>=80?'':w.avg>=60?'mid':'low';
       var avgColor=w.total>0?(w.avg>=80?'var(--accent)':w.avg>=60?'var(--warn)':'var(--err)'):'#ccc';
       h+='<div class="st-day-col">';
-      h+='<span class="st-day-avg" style="color:'+(w.total>0?avgColor:'#ccc')+'">'+(w.total>0?w.avg+'%':'')+'</span>';
+      h+='<span class="st-day-avg" style="color:'+(w.total>0?avgColor:'#ccc')+'">'+(w.total>0?w.avg+'分':'')+'</span>';
       h+='<div class="st-day-bar-area"><div class="st-day-bar '+barCls+'" style="height:'+barH+'px"></div></div>';
       h+='<span class="st-day-count">'+(w.total>0?w.total:'')+'</span>';
       h+='<span class="st-day-lab">'+w.label+'</span>';
