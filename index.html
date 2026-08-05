@@ -252,7 +252,7 @@ textarea.ef{min-height:80px}
  * justChecked: 刚校核完成标志
  * _dictInputTimer: 默写输入防抖定时器
  */
-var DATA_VERSION='v25';
+var DATA_VERSION='v26';
 (function(){
   var s=document.createElement('script');
   s.src='data.js?v='+DATA_VERSION+'&t='+Date.now();
@@ -325,7 +325,8 @@ var _dictInputTimer=null;
 function init(){
   try{
     var ver=localStorage.getItem('hxx_ver');
-    if(ver!==DATA_VERSION){
+    var versionChanged=ver!==DATA_VERSION;
+    if(versionChanged){
       localStorage.setItem('hxx_ver',DATA_VERSION);
       localStorage.removeItem('hxx_dict');
     }
@@ -338,7 +339,29 @@ function init(){
     if(localKnowledge){
       localKnowledge=localKnowledge.filter(function(i){return i&&i.id});
     }
-    if(localKnowledge&&localKnowledge.length>=cloudKnowledge.length){
+    /* 版本变更时：以云端为基准，保留本地有修改的条目（口诀/状态/自定义条目） */
+    if(versionChanged){
+      allData=cloudKnowledge;
+      if(localKnowledge){
+        var localById={};
+        localKnowledge.forEach(function(k){if(k&&k.id)localById[String(k.id)]=k});
+        allData=allData.map(function(k){
+          if(!k||!k.id)return k;
+          var lo=localById[String(k.id)];
+          if(lo&&(lo.status!=='未开始'||(lo.mnemonic&&lo.mnemonic.length>0)))return lo;
+          return k;
+        }).filter(function(i){return i&&i.id});
+        /* 保留本地自定义条目（云端没有的） */
+        var cloudById={};
+        cloudKnowledge.forEach(function(k){if(k&&k.id)cloudById[String(k.id)]=k});
+        localKnowledge.forEach(function(k){
+          if(k&&k.id&&!cloudById[String(k.id)]){
+            allData.push(k);
+          }
+        });
+      }
+      save();
+    }else if(localKnowledge&&localKnowledge.length>=cloudKnowledge.length){
       allData=localKnowledge;
     }else{
       allData=cloudKnowledge;
